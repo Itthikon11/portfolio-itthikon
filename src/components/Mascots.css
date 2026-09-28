@@ -1,5 +1,5 @@
 .mascots {
-  --u: clamp(58px, 6.2vw, 116px);
+  --u: clamp(58px, calc(6.2 * var(--vw)), 116px);
   position: fixed;
   right: 0;
   bottom: 0;

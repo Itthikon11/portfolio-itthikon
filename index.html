@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;600&family=Kanit:wght@400;600;800&family=Kurale&family=Sarabun:wght@400;600&family=Silkscreen:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Pridi:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
@@ -20,6 +20,23 @@
       } catch (e) {
         document.documentElement.dataset.theme = 'light';
       }
+    </script>
+    <script>
+      // Desktop layout is designed for a ~1900×900 viewport; smaller screens get the whole page scaled
+      // down (like browser zoom-out) so every page fits one screen. --z lets CSS undo the zoom on
+      // viewport units and canvases.
+      (function () {
+        var root = document.documentElement;
+        var fit = function () {
+          var w = window.innerWidth;
+          var h = window.innerHeight;
+          var z = w <= 1024 ? 1 : Math.max(0.55, Math.min(1, w / 1900, h / 900));
+          root.style.zoom = z === 1 ? '' : String(z);
+          root.style.setProperty('--z', String(z));
+        };
+        fit();
+        window.addEventListener('resize', fit);
+      })();
     </script>
   </head>
   <body>

@@ -6,7 +6,7 @@ const W = 512;
 const H = 720;
 
 const PALETTE = {
-  light: { holder: '#d4d6dc', slot: '#aeb1b9', card: '#f6f6f8', ink: '#111114', muted: '#3b3b44', strap: '#16161a' },
+  light: { holder: '#d4d6dc', slot: '#aeb1b9', card: '#f6f6f8', ink: '#111114', muted: '#26262d', strap: '#16161a' },
   dark: { holder: '#2a2a30', slot: '#0d0d10', card: '#141417', ink: '#f4f4f6', muted: '#c9c9d2', strap: '#e6e6ea' }
 };
 
@@ -15,11 +15,20 @@ const roundRect = (ctx, x, y, w, h, r) => {
   ctx.roundRect(x, y, w, h, r);
 };
 
+// Drawn at 2× so the photo and text stay sharp when the card is close to the camera.
+const SCALE = 2;
+
 const makeCanvas = (w = W, h = H) => {
   const c = document.createElement('canvas');
-  c.width = w;
-  c.height = h;
+  c.width = w * SCALE;
+  c.height = h * SCALE;
   return c;
+};
+
+const context = c => {
+  const ctx = c.getContext('2d');
+  ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  return ctx;
 };
 
 const drawHolder = (ctx, p) => {
@@ -38,10 +47,10 @@ const drawHolder = (ctx, p) => {
   ctx.fill();
 };
 
-const fitText = (ctx, text, maxWidth, size, family) => {
+const fitText = (ctx, text, maxWidth, size, family, weight = 400) => {
   let s = size;
   do {
-    ctx.font = `${s}px ${family}`;
+    ctx.font = `${weight} ${s}px ${family}`;
     s -= 1;
   } while (ctx.measureText(text).width > maxWidth && s > 10);
 };
@@ -58,7 +67,7 @@ const drawIcon = (ctx, name, x, y, size, color) => {
   ctx.restore();
 };
 
-const FONT = 'Kurale, Kanit, serif';
+const FONT = 'Pridi, serif';
 
 export const loadImage = src =>
   new Promise((resolve, reject) => {
@@ -71,7 +80,7 @@ export const loadImage = src =>
 export function drawFront(theme, t, photo) {
   const p = PALETTE[theme];
   const c = makeCanvas();
-  const ctx = c.getContext('2d');
+  const ctx = context(c);
   drawHolder(ctx, p);
 
   // photo, "cover"-fitted into a rounded frame
@@ -90,9 +99,9 @@ export function drawFront(theme, t, photo) {
 
   ctx.fillStyle = p.ink;
   ctx.textAlign = 'center';
-  fitText(ctx, NAME, 400, 32, FONT);
+  fitText(ctx, NAME, 400, 32, FONT, 700);
   ctx.fillText(NAME, W / 2, 540);
-  ctx.font = `28px ${FONT}`;
+  ctx.font = `600 28px ${FONT}`;
   ctx.fillStyle = p.muted;
   ctx.fillText(t.role[0], W / 2, 590);
   ctx.fillText(t.role[1], W / 2, 628);
@@ -102,12 +111,12 @@ export function drawFront(theme, t, photo) {
 export function drawBack(theme, t) {
   const p = PALETTE[theme];
   const c = makeCanvas();
-  const ctx = c.getContext('2d');
+  const ctx = context(c);
   drawHolder(ctx, p);
 
   ctx.textAlign = 'left';
   ctx.fillStyle = p.ink;
-  ctx.font = `20px ${FONT}`;
+  ctx.font = `600 20px ${FONT}`;
   ctx.fillText(t.available, 66, 124);
   const dotX = 66 + ctx.measureText(t.available).width + 16;
   ctx.beginPath();
@@ -126,15 +135,15 @@ export function drawBack(theme, t) {
     const y = 160 + i * 84;
     drawIcon(ctx, icon, 64, y + 4, 40, p.ink);
     ctx.fillStyle = p.ink;
-    ctx.font = `22px ${FONT}`;
+    ctx.font = `700 22px ${FONT}`;
     ctx.fillText(label, 124, y + 18);
     ctx.fillStyle = p.muted;
-    fitText(ctx, value, 320, 20, FONT);
+    fitText(ctx, value, 320, 20, FONT, 600);
     ctx.fillText(value, 124, y + 44);
   });
 
   ctx.fillStyle = p.ink;
-  fitText(ctx, NAME, 380, 30, FONT);
+  fitText(ctx, NAME, 380, 30, FONT, 700);
   ctx.fillText(NAME, 66, 630);
   return c;
 }
@@ -142,7 +151,7 @@ export function drawBack(theme, t) {
 export function drawBand(theme) {
   const p = PALETTE[theme];
   const c = makeCanvas(256, 64);
-  const ctx = c.getContext('2d');
+  const ctx = context(c);
   ctx.fillStyle = p.strap;
   ctx.fillRect(0, 0, 256, 64);
   // woven texture + stitched edges

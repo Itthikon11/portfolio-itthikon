@@ -2,6 +2,7 @@ import { useApp } from '../../context/AppContext';
 import { LINKS, NAME } from '../../data/content';
 import { Icon } from '../Icons';
 import IPod from '../IPod';
+import Rights from '../Rights';
 
 export default function Home() {
   const { t } = useApp();
@@ -39,6 +40,7 @@ export default function Home() {
           ))}
         </ul>
       </div>
+      <Rights />
     </section>
   );
 }

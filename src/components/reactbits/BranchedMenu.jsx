@@ -1,4 +1,4 @@
-import { isValidElement, useLayoutEffect, useRef, useState } from 'react';
+import { isValidElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import './BranchedMenu.css';
 
 const PAD = 6;
@@ -25,6 +25,10 @@ export default function BranchedMenu({
   fontSize = 14,
   drawDuration = 400,
   foldDuration = 300,
+  reveal = false,
+  stagger = 55,
+  revealDelay = 0,
+  followPointer = false,
   className = ''
 }) {
   const [open, setOpen] = useState(() => toSet(defaultOpen));
@@ -38,6 +42,20 @@ export default function BranchedMenu({
   const markerRef = useRef(null);
   const latest = useRef({});
   latest.current = { onSelect, onToggle };
+  const [revealed, setRevealed] = useState(!reveal);
+
+  // Rows flow in one after another the first time the menu scrolls into view.
+  useEffect(() => {
+    if (!reveal || revealed || !navRef.current) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setRevealed(true);
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(navRef.current);
+    return () => io.disconnect();
+  }, [reveal, revealed]);
 
   const activeSection = items.findIndex(it => it.children?.some(kid => kid.value === active));
   const markerShown = activeSection >= 0 && open.has(activeSection);
@@ -90,11 +108,24 @@ export default function BranchedMenu({
   const reach = k => `M ${trunk} 0 V ${rowY(k) - r} A ${r} ${r} 0 0 0 ${trunk + r} ${rowY(k)} H ${endX}`;
   const length = k => rowY(k) - r + (Math.PI * r) / 2 + (endX - trunk - r);
 
+  // Running position of every head and row, so the stagger runs through the whole menu in order.
+  let seq = 0;
+  const order = items.map(item => {
+    const head = seq++;
+    const kids = (item.children ?? []).map(() => seq++);
+    return { head, kids };
+  });
+
   return (
     <nav
       ref={navRef}
       className={`branched-menu${className ? ` ${className}` : ''}`}
+      onPointerLeave={followPointer ? e => e.pointerType === 'mouse' && setActive('') : undefined}
+      data-reveal={reveal ? '' : undefined}
+      data-revealed={revealed ? '' : undefined}
       style={{
+        '--bm-stagger': `${stagger}ms`,
+        '--bm-delay': `${revealDelay}ms`,
         '--bm-w': `${width}px`,
         '--bm-ink': color,
         '--bm-accent': accentColor,
@@ -122,6 +153,7 @@ export default function BranchedMenu({
               }}
               type="button"
               className="branched-menu__head"
+              style={{ '--bm-i': order[i].head }}
               aria-expanded={kids ? isOpen : undefined}
               aria-current={leafActive ? 'true' : undefined}
               data-active={leafActive ? '' : undefined}
@@ -134,9 +166,20 @@ export default function BranchedMenu({
                 <div className="branched-menu__fold">
                   <div className="branched-menu__tree" style={{ height: bodyH }}>
                     <svg className="branched-menu__lines" width={indent} height={bodyH} aria-hidden="true">
-                      <path className="branched-menu__base" d={`M ${trunk} 0 V ${rowY(kids.length - 1) - r}`} />
+                      <path
+                        className="branched-menu__base branched-menu__trunk"
+                        d={`M ${trunk} 0 V ${rowY(kids.length - 1) - r}`}
+                        pathLength="1"
+                        style={{ '--bm-i': order[i].kids[0], '--bm-n': kids.length }}
+                      />
                       {kids.map((kid, k) => (
-                        <path key={kid.value} className="branched-menu__base" d={branch(k)} />
+                        <path
+                          key={kid.value}
+                          className="branched-menu__base branched-menu__twig"
+                          d={branch(k)}
+                          pathLength="1"
+                          style={{ '--bm-i': order[i].kids[k] }}
+                        />
                       ))}
                       {kids.map((kid, k) => (
                         <path
@@ -150,15 +193,17 @@ export default function BranchedMenu({
                         />
                       ))}
                     </svg>
-                    {kids.map(kid => (
+                    {kids.map((kid, k) => (
                       <button
                         key={kid.value}
                         type="button"
                         className="branched-menu__item"
+                        style={{ '--bm-i': order[i].kids[k] }}
                         aria-current={kid.value === active ? 'true' : undefined}
                         data-active={kid.value === active ? '' : undefined}
                         tabIndex={isOpen ? 0 : -1}
                         onClick={() => select(kid.value, kid)}
+                        onPointerEnter={followPointer ? e => e.pointerType === 'mouse' && select(kid.value, kid) : undefined}
                       >
                         {kid.icon ? (
                           <span className="branched-menu__icon" aria-hidden="true">

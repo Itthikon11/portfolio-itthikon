@@ -9,3 +9,11 @@
   transform: scale(1);
   transform-origin: center;
 }
+
+/* spans its positioned ancestor; pointer input arrives through the eventSource instead */
+.lanyard-wrapper--free {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}

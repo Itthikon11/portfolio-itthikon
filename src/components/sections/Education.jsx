@@ -1,5 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import CRTWarp from '../reactbits/CRTWarp';
+import GlitchText from '../reactbits/GlitchText';
+import Rights from '../Rights';
 
 // Transparent screen hole in each TV image, in % of the image.
 const TV = {
@@ -20,6 +23,24 @@ const pct = r => ({ left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, 
 export default function Education() {
   const { t, theme } = useApp();
   const tv = TV[theme];
+  const timelineRef = useRef(null);
+
+  // Rail, numbers and cards each come in once they scroll into view; cards slide from their own side.
+  useEffect(() => {
+    const root = timelineRef.current;
+    if (!root) return;
+    const io = new IntersectionObserver(
+      entries =>
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          e.target.setAttribute('data-shown', '');
+          io.unobserve(e.target);
+        }),
+      { threshold: 0.25 }
+    );
+    [root, ...root.querySelectorAll('.timeline__num, .edu-card')].forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, [t]);
 
   return (
     <section id="education" className="section education">
@@ -29,27 +50,31 @@ export default function Education() {
         </div>
         <img src={tv.src} alt="" className="tv__body" draggable="false" />
         <h2 className="tv__title slab" style={pct(tv.screen)}>
-          <span>{t.educationTitle}</span>
+          <GlitchText as="span" className="tv__glitch" speed={0.6} shadowColors={['#ffffff', '#ffffff']}>
+            {t.educationTitle}
+          </GlitchText>
         </h2>
       </div>
 
-      <ol className="timeline">
+      <ol className="timeline" ref={timelineRef}>
         {t.education.map((item, i) => (
           <li key={item.degree} className={`timeline__item timeline__item--${i % 2 ? 'right' : 'left'}`}>
             <span className="timeline__num" style={{ gridRow: i + 1 }}>{i + 1}</span>
             <article className="edu-card glass" style={{ gridRow: i + 1 }}>
-              <span className="edu-card__years">{item.years}</span>
-              <h3>
-                {item.degree}
-                <br />
-                {item.field}
-              </h3>
-              <p>{item.school}</p>
-              <p>{item.grade}</p>
+              <header className="edu-card__head">
+                <h3>
+                  {item.degree}
+                  <span>{item.field}</span>
+                </h3>
+                <span className="edu-card__years">{item.years}</span>
+              </header>
+              <p className="edu-card__school">{item.school}</p>
+              <p className="edu-card__grade">{item.grade}</p>
             </article>
           </li>
         ))}
       </ol>
+      <Rights />
     </section>
   );
 }

@@ -180,7 +180,57 @@
   white-space: nowrap;
 }
 
+/* ---- staggered entrance (reveal prop) ---- */
+.branched-menu[data-reveal] {
+  --bm-at: calc(var(--bm-delay) + var(--bm-i, 0) * var(--bm-stagger));
+}
+
+.branched-menu[data-reveal] .branched-menu__head,
+.branched-menu[data-reveal] .branched-menu__item {
+  transition:
+    color 200ms ease,
+    opacity 360ms ease var(--bm-at),
+    transform 520ms var(--bm-ease-out) var(--bm-at);
+}
+
+.branched-menu[data-reveal]:not([data-revealed]) .branched-menu__head,
+.branched-menu[data-reveal]:not([data-revealed]) .branched-menu__item {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.branched-menu[data-reveal] .branched-menu__trunk,
+.branched-menu[data-reveal] .branched-menu__twig {
+  stroke-dasharray: 1 1;
+  transition:
+    stroke-dashoffset 420ms var(--bm-ease-out) var(--bm-at),
+    opacity 1ms linear var(--bm-at);
+}
+
+/* the trunk grows at the same pace the rows arrive */
+.branched-menu[data-reveal] .branched-menu__trunk {
+  transition:
+    stroke-dashoffset calc(var(--bm-n) * var(--bm-stagger) + 200ms) linear calc(var(--bm-at) - var(--bm-stagger)),
+    opacity 1ms linear calc(var(--bm-at) - var(--bm-stagger));
+}
+
+.branched-menu[data-reveal]:not([data-revealed]) .branched-menu__trunk,
+.branched-menu[data-reveal]:not([data-revealed]) .branched-menu__twig {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .branched-menu[data-reveal] .branched-menu__head,
+  .branched-menu[data-reveal] .branched-menu__item,
+  .branched-menu[data-reveal] .branched-menu__trunk,
+  .branched-menu[data-reveal] .branched-menu__twig {
+    transition: color 200ms ease;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
+
   .branched-menu__marker {
     transition: opacity 150ms ease;
   }

@@ -1,65 +1,61 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PROJECTS } from '../../data/content';
+import { loadImage } from '../cardCanvas';
 import { Icon } from '../Icons';
+import { CARD_H, CARD_W, drawProjectCard } from '../projectArt';
+import CircularGallery from '../reactbits/CircularGallery';
 import Folder from '../reactbits/Folder';
+import Rights from '../Rights';
 
-const PER_PAGE = 6;
-
-function ProjectCard({ project, index, lang, viewLabel }) {
-  const initials = project.title
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .slice(0, 2);
-  const body = (
-    <>
-      <div className="project-card__thumb">
-        {project.image ? <img src={project.image} alt="" /> : <span aria-hidden="true">{initials}</span>}
-      </div>
-      <div className="project-card__body">
-        <h3>{project.title}</h3>
-        <p>{project.description[lang]}</p>
-        <ul className="project-card__tags">
-          {project.tags.map(tag => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
-      </div>
-      {project.href ? (
-        <span className="project-card__link">
-          {viewLabel} <Icon name="external" size={16} />
-        </span>
-      ) : null}
-    </>
-  );
-  const style = { '--i': index };
-  return project.href ? (
-    <a className="project-card glass" href={project.href} target="_blank" rel="noreferrer" style={style}>
-      {body}
-    </a>
-  ) : (
-    <article className="project-card glass" style={style}>
-      {body}
-    </article>
-  );
+// Each project drawn as a card image for the gallery; rebuilt when theme or language changes.
+function useProjectCards(theme, lang) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const photos = PROJECTS.map(p => (p.image ? loadImage(p.image).catch(() => null) : null));
+    Promise.all([...photos, document.fonts.load('400 44px Pridi')]).then(loaded => {
+      if (cancelled) return;
+      setItems(PROJECTS.map((p, i) => ({ image: drawProjectCard(p, theme, lang, loaded[i]), text: '' })));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [theme, lang]);
+  return items;
 }
 
 export default function Projects() {
-  const { t, lang } = useApp();
+  const { t, theme, lang } = useApp();
   const [view, setView] = useState('folder');
-  const [page, setPage] = useState(0);
-  const timer = useRef(0);
-  const pages = Math.max(1, Math.ceil(PROJECTS.length / PER_PAGE));
-  const visible = PROJECTS.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+  // true while the current view plays its exit animation
+  const [leaving, setLeaving] = useState(false);
+  const timers = useRef([]);
+  const cards = useProjectCards(theme, lang);
 
-  const onFolderToggle = open => {
-    clearTimeout(timer.current);
-    // let the papers fan out before swapping to the grid
-    if (open) timer.current = setTimeout(() => setView('grid'), 750);
+  const clearTimers = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  };
+  useEffect(() => clearTimers, []);
+
+  // exit the current view, then mount the next one (which plays its own entrance)
+  const switchTo = (next, delay) => {
+    clearTimers();
+    timers.current.push(
+      setTimeout(() => setLeaving(true), delay),
+      setTimeout(() => {
+        setView(next);
+        setLeaving(false);
+      }, delay + 380)
+    );
   };
 
-  const go = dir => setPage(p => (p + dir + pages) % pages);
+  const onFolderToggle = open => {
+    // let the papers fan out first
+    if (open) switchTo('gallery', 520);
+    else clearTimers();
+  };
 
   return (
     <section id="projects" className="section projects">
@@ -69,7 +65,7 @@ export default function Projects() {
       </header>
 
       {view === 'folder' ? (
-        <div className="projects__folder">
+        <div className={`projects__folder${leaving ? ' is-leaving' : ''}`}>
           <div className="folder-stage">
             <Folder color="#DDD59B" size={3.4} onToggle={onFolderToggle} />
           </div>
@@ -80,49 +76,30 @@ export default function Projects() {
           </p>
         </div>
       ) : (
-        <div className="projects__grid-wrap">
-          {pages > 1 ? (
-            <button type="button" className="projects__arrow projects__arrow--prev" onClick={() => go(-1)} aria-label="Previous">
-              <Icon name="chevronLeft" size={64} strokeWidth={2.4} />
-            </button>
-          ) : null}
-          <div className="projects__grid" key={page}>
-            {visible.map((project, i) => (
-              <ProjectCard key={project.title} project={project} index={i} lang={lang} viewLabel={t.viewProject} />
-            ))}
-          </div>
-          {pages > 1 ? (
-            <button type="button" className="projects__arrow projects__arrow--next" onClick={() => go(1)} aria-label="Next">
-              <Icon name="chevronRight" size={64} strokeWidth={2.4} />
-            </button>
-          ) : null}
-          <div className="projects__footer">
-            {pages > 1 ? (
-              <div className="projects__dots">
-                {Array.from({ length: pages }, (_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className={i === page ? 'is-active' : ''}
-                    onClick={() => setPage(i)}
-                    aria-label={`Page ${i + 1}`}
-                  />
-                ))}
-              </div>
+        <div className={`projects__stage${leaving ? ' is-leaving' : ''}`}>
+          <div className="projects__gallery">
+            {cards ? (
+              <CircularGallery
+                items={cards}
+                bend={2}
+                borderRadius={0.05}
+                itemWidth={CARD_W}
+                itemHeight={CARD_H}
+                scrollEase={0.06}
+                intro={2}
+                label={t.projectsTitle}
+              />
             ) : null}
-            <button
-              type="button"
-              className="projects__close"
-              onClick={() => {
-                setView('folder');
-                setPage(0);
-              }}
-            >
+          </div>
+          <div className="projects__footer">
+            <span className="projects__hint">{t.galleryHint}</span>
+            <button type="button" className="projects__close" onClick={() => switchTo('folder', 0)}>
               <Icon name="close" size={16} /> {t.backToFolder}
             </button>
           </div>
         </div>
       )}
+      <Rights />
     </section>
   );
 }

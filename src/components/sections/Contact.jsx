@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { LINKS, PHOTO } from '../../data/content';
 import { drawBack, drawBand, drawFront, HOLDER_COLORS, loadImage } from '../cardCanvas';
 import { Icon } from '../Icons';
+import Rights from '../Rights';
 
 // three/rapier for the lanyard are only fetched once the contact section gets close.
 const Lanyard = lazy(() => import('../reactbits/Lanyard'));
@@ -14,7 +15,7 @@ function useCardCanvases(theme, t) {
   useEffect(() => {
     let cancelled = false;
     photoPromise ??= loadImage(PHOTO);
-    Promise.all([photoPromise, document.fonts.load('32px Kurale'), document.fonts.load('32px Kanit')]).then(([photo]) => {
+    Promise.all([photoPromise, document.fonts.load('600 32px Pridi'), document.fonts.load('700 32px Pridi')]).then(([photo]) => {
       if (cancelled) return;
       setCanvases({ front: drawFront(theme, t, photo), back: drawBack(theme, t), band: drawBand(theme) });
     });
@@ -28,6 +29,7 @@ function useCardCanvases(theme, t) {
 export default function Contact() {
   const { t, theme } = useApp();
   const sectionRef = useRef(null);
+  const anchorRef = useRef(null);
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
   const [sent, setSent] = useState(false);
@@ -58,92 +60,115 @@ export default function Contact() {
   return (
     <section id="contact" className="section contact" ref={sectionRef}>
       <header className="contact__head">
-        <h2>{t.getInTouch}</h2>
-        <p>{t.question}</p>
+        <p className="contact__eyebrow">
+          <span className="status-dot" aria-hidden="true" />
+          {t.getInTouch}
+        </p>
+        <h2>{t.question}</h2>
       </header>
 
-      <div className="contact__info">
+      <div className="contact__info glass">
         <h3>{t.contactInfo}</h3>
         <ul className="info-list">
           <li>
-            <Icon name="mail" size={30} />
-            <span>
-              <small>{t.email}</small>
-              <a href={LINKS.email.href}>{LINKS.email.handle}</a>
-            </span>
+            <a className="info-row" href={LINKS.email.href}>
+              <span className="info-row__icon">
+                <Icon name="mail" size={22} />
+              </span>
+              <span className="info-row__text">
+                <small>{t.email}</small>
+                {LINKS.email.handle}
+              </span>
+              <Icon name="arrowUpRight" size={16} className="info-row__go" />
+            </a>
           </li>
           <li>
-            <Icon name="pin" size={30} />
-            <span>
-              <small>{t.location}</small>
-              {t.locationValue}
-            </span>
+            <div className="info-row">
+              <span className="info-row__icon">
+                <Icon name="pin" size={22} />
+              </span>
+              <span className="info-row__text">
+                <small>{t.location}</small>
+                {t.locationValue}
+              </span>
+            </div>
           </li>
         </ul>
         <h3>{t.followMe}</h3>
         <ul className="info-list">
           <li>
-            <Icon name="github" size={30} />
-            <span>
-              <small>{t.github}</small>
-              <a href={LINKS.github.href} target="_blank" rel="noreferrer">
+            <a className="info-row" href={LINKS.github.href} target="_blank" rel="noreferrer">
+              <span className="info-row__icon">
+                <Icon name="github" size={22} />
+              </span>
+              <span className="info-row__text">
+                <small>{t.github}</small>
                 {LINKS.github.handle}
-              </a>
-            </span>
+              </span>
+              <Icon name="arrowUpRight" size={16} className="info-row__go" />
+            </a>
           </li>
           <li>
-            <Icon name="linkedin" size={30} />
-            <span>
-              <small>{t.linkedin}</small>
-              <a href={LINKS.linkedin.href} target="_blank" rel="noreferrer">
+            <a className="info-row" href={LINKS.linkedin.href} target="_blank" rel="noreferrer">
+              <span className="info-row__icon">
+                <Icon name="linkedin" size={22} />
+              </span>
+              <span className="info-row__text">
+                <small>{t.linkedin}</small>
                 {LINKS.linkedin.handle}
-              </a>
-            </span>
+              </span>
+              <Icon name="arrowUpRight" size={16} className="info-row__go" />
+            </a>
           </li>
         </ul>
       </div>
 
-      <form className="contact__form" onSubmit={onSubmit}>
-        <label>
-          {t.form.name}
-          <input name="name" type="text" required autoComplete="name" />
-        </label>
-        <label>
-          {t.form.email}
-          <input name="email" type="email" required autoComplete="email" />
-        </label>
+      <form className="contact__form glass" onSubmit={onSubmit}>
+        <div className="contact__form-row">
+          <label>
+            {t.form.name}
+            <input name="name" type="text" required autoComplete="name" />
+          </label>
+          <label>
+            {t.form.email}
+            <input name="email" type="email" required autoComplete="email" />
+          </label>
+        </div>
         <label>
           {t.form.message}
           <textarea name="message" rows={6} required />
         </label>
         <button type="submit" className="send-btn">
           {t.form.send}
+          <Icon name="send" size={18} />
         </button>
         <p className="form-status" aria-live="polite">
           {sent ? t.form.sent : ''}
         </p>
       </form>
 
-      <div className="contact__lanyard" aria-label={t.dragCard} title={t.dragCard}>
-        {near && canvases ? (
-          <Suspense fallback={null}>
-            <Lanyard
-              frontCanvas={canvases.front}
-              backCanvas={canvases.back}
-              bandCanvas={canvases.band}
-              holderColor={HOLDER_COLORS[theme]}
-              metalColor={theme === 'dark' ? '#9a9ca3' : '#d3d5da'}
-              position={[0, 0, 18]}
-              fov={20}
-              anchorY={3.4}
-              lanyardWidth={3}
-              active={visible}
-            />
-          </Suspense>
-        ) : null}
-      </div>
+      {/* empty grid cell the strap hangs from; the canvas itself spans the whole section so the card can be pulled anywhere */}
+      <div ref={anchorRef} className="contact__lanyard" aria-label={t.dragCard} title={t.dragCard} />
+      {near && canvases ? (
+        <Suspense fallback={null}>
+          <Lanyard
+            frontCanvas={canvases.front}
+            backCanvas={canvases.back}
+            bandCanvas={canvases.band}
+            holderColor={HOLDER_COLORS[theme]}
+            metalColor={theme === 'dark' ? '#9a9ca3' : '#d3d5da'}
+            position={[0, 0, 18]}
+            fov={20}
+            anchorY={3.4}
+            anchorRef={anchorRef}
+            eventSource={sectionRef}
+            lanyardWidth={1.4}
+            active={visible}
+          />
+        </Suspense>
+      ) : null}
 
-      <footer className="footer">{t.rights}</footer>
+      <Rights />
     </section>
   );
 }

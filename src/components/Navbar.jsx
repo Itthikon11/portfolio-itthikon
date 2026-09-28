@@ -1,33 +1,34 @@
-import { useEffect, useState } from 'react';
-import { useApp } from '../context/AppContext';
+import { PAGES, useApp } from '../context/AppContext';
 import { FlagTH, FlagUK, Icon } from './Icons';
+import GlassSurface from './reactbits/GlassSurface';
 
-const SECTIONS = ['home', 'education', 'skills', 'projects', 'contact'];
+const PAGE_ICONS = { home: 'home', education: 'graduation', skills: 'code', projects: 'folder', contact: 'mail' };
+
+// Clear liquid-glass backdrop shared by the bar and the language pill.
+const Glass = ({ radius }) => (
+  <GlassSurface
+    width="100%"
+    height="100%"
+    borderRadius={radius}
+    backgroundOpacity={0.12}
+    saturation={1.4}
+    className="navbar__glass"
+  />
+);
 
 export default function Navbar() {
-  const { t, theme, lang, toggleTheme, toggleLang } = useApp();
-  const [active, setActive] = useState('home');
-
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      entries => entries.forEach(e => e.isIntersecting && setActive(e.target.id)),
-      { rootMargin: '-45% 0px -50% 0px' }
-    );
-    SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) io.observe(el);
-    });
-    return () => io.disconnect();
-  }, []);
+  const { t, theme, lang, page: active, toggleTheme, toggleLang } = useApp();
 
   return (
     <>
       <nav className="navbar" aria-label="Main">
+        <Glass radius={34} />
         <ul className="navbar__links">
-          {SECTIONS.map(id => (
+          {PAGES.map(id => (
             <li key={id}>
-              <a href={`#${id}`} className={active === id ? 'is-active' : ''} aria-current={active === id ? 'true' : undefined}>
-                {t.nav[id]}
+              <a href={`#${id}`} className={active === id ? 'is-active' : ''} aria-current={active === id ? 'page' : undefined}>
+                <Icon name={PAGE_ICONS[id]} size={18} strokeWidth={1.8} />
+                <span>{t.nav[id]}</span>
               </a>
             </li>
           ))}
@@ -39,12 +40,26 @@ export default function Navbar() {
           aria-label={theme === 'dark' ? t.themeToLight : t.themeToDark}
           title={theme === 'dark' ? t.themeToLight : t.themeToDark}
         >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={26} strokeWidth={1.6} />
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={24} strokeWidth={1.6} />
         </button>
       </nav>
-      <button type="button" className="lang-toggle" onClick={toggleLang} aria-label={t.langSwitch} title={t.langSwitch}>
-        {lang === 'en' ? <FlagUK /> : <FlagTH />}
-        <span>{lang.toUpperCase()}</span>
+      {/* two-flag switch: the highlight slides under the current language */}
+      <button
+        type="button"
+        className="lang-toggle"
+        data-lang={lang}
+        onClick={toggleLang}
+        aria-label={t.langSwitch}
+        title={t.langSwitch}
+      >
+        <Glass radius={22} />
+        <span className="lang-toggle__thumb" aria-hidden="true" />
+        <span className="lang-toggle__opt" data-on={lang === 'en' ? '' : undefined}>
+          <FlagUK size={22} />
+        </span>
+        <span className="lang-toggle__opt" data-on={lang === 'th' ? '' : undefined}>
+          <FlagTH size={22} />
+        </span>
       </button>
     </>
   );

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, extend, useFrame } from '@react-three/fiber';
+import { Canvas, events as createPointerEvents, extend, useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, RoundedBox } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
@@ -40,10 +40,51 @@ export default function Lanyard({
   holderColor = '#d9dade',
   metalColor = '#c9ccd2',
   anchorY = 4,
+  anchorRef,
+  eventSource,
   lanyardWidth = 1,
   active = true
 }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const wrapperRef = useRef(null);
+  // Where the strap hangs from, as a fraction of the canvas — the top centre of `anchorRef`.
+  const [anchor, setAnchor] = useState(null);
+
+  useEffect(() => {
+    const wrap = wrapperRef.current;
+    const el = anchorRef?.current;
+    if (!wrap || !el) return;
+    const measure = () => {
+      const w = wrap.getBoundingClientRect();
+      const a = el.getBoundingClientRect();
+      if (!w.width || !w.height) return;
+      const fx = (a.left + a.width / 2 - w.left) / w.width;
+      const fy = (a.top - w.top) / w.height;
+      setAnchor(prev => (prev && Math.abs(prev[0] - fx) < 0.005 && Math.abs(prev[1] - fy) < 0.005 ? prev : [fx, fy]));
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(wrap);
+    ro.observe(el);
+    measure();
+    return () => ro.disconnect();
+  }, [anchorRef]);
+
+  // With an eventSource the canvas itself ignores the pointer (so content under it stays usable);
+  // the pointer is mapped from client coordinates onto the canvas instead.
+  const pointerEvents = useMemo(
+    () =>
+      eventSource
+        ? store => ({
+            ...createPointerEvents(store),
+            compute(event, state) {
+              const r = state.gl.domElement.getBoundingClientRect();
+              state.pointer.set(((event.clientX - r.left) / r.width) * 2 - 1, -((event.clientY - r.top) / r.height) * 2 + 1);
+              state.raycaster.setFromCamera(state.pointer, state.camera);
+            }
+          })
+        : undefined,
+    [eventSource]
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -52,8 +93,10 @@ export default function Lanyard({
   }, []);
 
   return (
-    <div className="lanyard-wrapper">
+    <div ref={wrapperRef} className={`lanyard-wrapper${eventSource ? ' lanyard-wrapper--free' : ''}`}>
       <Canvas
+        eventSource={eventSource}
+        events={pointerEvents}
         camera={{ position: position, fov: fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
         frameloop={active ? 'always' : 'never'}
@@ -63,6 +106,8 @@ export default function Lanyard({
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60} paused={!active}>
           <Band
+            key={anchor ? anchor.join() : 'center'}
+            anchor={anchor}
             isMobile={isMobile}
             frontCanvas={frontCanvas}
             backCanvas={backCanvas}
@@ -118,8 +163,15 @@ function Band({
   holderColor,
   metalColor,
   anchorY,
+  anchor,
   lanyardWidth = 1
 }) {
+  const viewport = useThree(s => s.viewport);
+  const size = useThree(s => s.size);
+  // anchorY is the strap height when anchored at the canvas top; lower anchors shift it down by their offset
+  const origin = anchor
+    ? [(anchor[0] - 0.5) * viewport.width, (0.5 - anchor[1]) * viewport.height + anchorY - viewport.height / 2, 0]
+    : [0, anchorY, 0];
   const band = useRef(),
     fixed = useRef(),
     j1 = useRef(),
@@ -189,7 +241,7 @@ function Band({
 
   return (
     <>
-      <group position={[0, anchorY, 0]}>
+      <group position={origin}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
@@ -216,27 +268,13 @@ function Band({
             </RoundedBox>
             <mesh position={[0, 0, 0.017]}>
               <planeGeometry args={[CARD_W, CARD_H]} />
-              <meshPhysicalMaterial
-                map={frontTex}
-                alphaTest={0.5}
-                transparent
-                clearcoat={isMobile ? 0 : 0.4}
-                clearcoatRoughness={0.2}
-                roughness={0.9}
-                envMapIntensity={0.25}
-              />
+              {/* unlit + no tone mapping: the printed face shows its true colours instead of washing out */}
+              <meshBasicMaterial map={frontTex} alphaTest={0.5} transparent toneMapped={false} />
             </mesh>
             <mesh position={[0, 0, -0.017]} rotation={[0, Math.PI, 0]}>
               <planeGeometry args={[CARD_W, CARD_H]} />
-              <meshPhysicalMaterial
-                map={backTex}
-                alphaTest={0.5}
-                transparent
-                clearcoat={isMobile ? 0 : 0.4}
-                clearcoatRoughness={0.2}
-                roughness={0.9}
-                envMapIntensity={0.25}
-              />
+              {/* unlit + no tone mapping: the printed face shows its true colours instead of washing out */}
+              <meshBasicMaterial map={backTex} alphaTest={0.5} transparent toneMapped={false} />
             </mesh>
             {/* clip + ring connecting the card to the strap */}
             <mesh position={[0, CARD_H / 2 + 0.08, 0]}>
@@ -255,7 +293,8 @@ function Band({
         <meshLineMaterial
           color="white"
           depthTest={false}
-          resolution={isMobile ? [1000, 2000] : [1000, 1000]}
+          // the real canvas size keeps the strap's thickness tied to canvas height, not width
+          resolution={[size.width, size.height]}
           useMap
           map={texture}
           repeat={[-4, 1]}
