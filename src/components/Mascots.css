@@ -1,0 +1,155 @@
+.mascots {
+  --u: clamp(58px, 6.2vw, 116px);
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  width: calc(var(--u) * 2);
+  height: calc(var(--u) * 1.9);
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  bottom: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.blob:hover {
+  transform: translateY(-10%);
+}
+
+.blob:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: calc(var(--u) * 0.5) calc(var(--u) * 0.5) 0 0;
+}
+
+/* The body extends below the viewport so a hop never shows the flat bottom. */
+.blob__body {
+  position: relative;
+  display: block;
+  width: var(--w);
+  height: calc(var(--visible) + var(--u) * 1.4);
+  margin-bottom: calc(var(--u) * -1.4);
+  border-radius: calc(var(--w) * 0.5) calc(var(--w) * 0.5) 0 0;
+  background: var(--blob);
+  transform-origin: 50% 100%;
+  animation: blob-bounce 1.7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  box-shadow: inset calc(var(--u) * -0.08) 0 calc(var(--u) * 0.18) rgba(0, 0, 0, 0.08);
+}
+
+.blob--green {
+  --w: var(--u);
+  --visible: calc(var(--u) * 1.75);
+  --blob: var(--mascot-green);
+  right: calc(var(--u) * 0.08);
+}
+
+.blob--purple {
+  --w: calc(var(--u) * 1.05);
+  --visible: calc(var(--u) * 1.08);
+  --blob: var(--mascot-purple);
+  right: calc(var(--u) * 0.72);
+}
+
+.blob--purple .blob__body {
+  animation-delay: -0.85s;
+}
+
+.blob.is-jumping .blob__body {
+  animation: blob-jump 0.7s cubic-bezier(0.3, 0, 0.3, 1);
+}
+
+.eye {
+  position: absolute;
+  left: calc(var(--w) * var(--x));
+  top: calc(var(--w) * var(--y));
+  width: calc(var(--w) * var(--r) * 2);
+  height: calc(var(--w) * var(--r) * 2);
+  margin: calc(var(--w) * var(--r) * -1) 0 0 calc(var(--w) * var(--r) * -1);
+  border-radius: 50%;
+  background: #fff;
+  animation: blink 5.2s infinite;
+}
+
+.blob--purple .eye {
+  animation-duration: 6.4s;
+  animation-delay: 1.3s;
+}
+
+.pupil {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46%;
+  height: 46%;
+  margin: -23% 0 0 -23%;
+  border-radius: 50%;
+  background: #0b0b0e;
+  will-change: transform;
+}
+
+@keyframes blob-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  18% {
+    transform: translateY(0) scale(1.07, 0.9);
+  }
+  45% {
+    transform: translateY(-14%) scale(0.95, 1.06);
+  }
+  62% {
+    transform: translateY(-16%) scale(0.98, 1.02);
+  }
+  84% {
+    transform: translateY(0) scale(1.05, 0.93);
+  }
+}
+
+@keyframes blob-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  15% {
+    transform: translateY(0) scale(1.14, 0.8);
+  }
+  45% {
+    transform: translateY(-48%) scale(0.9, 1.12);
+  }
+  75% {
+    transform: translateY(0) scale(1.12, 0.86);
+  }
+  90% {
+    transform: translateY(-5%) scale(0.97, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob__body,
+  .eye {
+    animation: none;
+  }
+}
