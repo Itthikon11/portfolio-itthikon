@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PROJECTS } from '../../data/content';
+import { pick, PROJECTS } from '../../data/content';
 import { loadImage } from '../cardCanvas';
 import { Icon } from '../Icons';
+import ProjectDetail from '../ProjectDetail';
 import { CARD_H, CARD_W, drawProjectCard } from '../projectArt';
 import CircularGallery from '../reactbits/CircularGallery';
 import Folder from '../reactbits/Folder';
@@ -14,9 +15,11 @@ function useProjectCards(theme, lang) {
   useEffect(() => {
     let cancelled = false;
     const photos = PROJECTS.map(p => (p.image ? loadImage(p.image).catch(() => null) : null));
-    Promise.all([...photos, document.fonts.load('400 44px Pridi')]).then(loaded => {
+    // pass Thai + Latin sample text so both unicode-range subsets of each weight are fetched
+    const fonts = [400, 500, 600, 700].map(w => document.fonts.load(`${w} 40px Pridi`, 'Aaกข'));
+    Promise.all([...photos, ...fonts]).then(loaded => {
       if (cancelled) return;
-      setItems(PROJECTS.map((p, i) => ({ image: drawProjectCard(p, theme, lang, loaded[i]), text: '' })));
+      setItems(PROJECTS.map((p, i) => ({ image: drawProjectCard(p, i, theme, lang, loaded[i]), text: '' })));
     });
     return () => {
       cancelled = true;
@@ -30,6 +33,9 @@ export default function Projects() {
   const [view, setView] = useState('folder');
   // true while the current view plays its exit animation
   const [leaving, setLeaving] = useState(false);
+  // centred card in the gallery, and the project open in the detail dialog (null = closed)
+  const [active, setActive] = useState(0);
+  const [detail, setDetail] = useState(null);
   const timers = useRef([]);
   const cards = useProjectCards(theme, lang);
 
@@ -88,17 +94,24 @@ export default function Projects() {
                 scrollEase={0.06}
                 intro={2}
                 label={t.projectsTitle}
+                onActive={setActive}
+                onSelect={setDetail}
               />
             ) : null}
           </div>
           <div className="projects__footer">
             <span className="projects__hint">{t.galleryHint}</span>
+            <button type="button" className="projects__open" onClick={() => setDetail(active)}>
+              {t.viewDetails}: <strong>{pick(PROJECTS[active].title, lang)}</strong>
+              <Icon name="arrowUpRight" size={16} />
+            </button>
             <button type="button" className="projects__close" onClick={() => switchTo('folder', 0)}>
               <Icon name="close" size={16} /> {t.backToFolder}
             </button>
           </div>
         </div>
       )}
+      {detail !== null ? <ProjectDetail index={detail} onClose={() => setDetail(null)} onNavigate={setDetail} /> : null}
       <Rights />
     </section>
   );

@@ -23,12 +23,16 @@ export default function Home() {
       </div>
       <div className="home__right">
         <h2 className="slab-title">{t.aboutTitle}</h2>
-        <p className="about">{t.about}</p>
+        <div className="about">
+          {t.about.map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
+        </div>
         <h2 className="slab-title">{t.contactInfo}</h2>
         <ul className="contact-pills">
           {contacts.map(c => (
             <li key={c.icon}>
-              <a className="contact-pill glass" href={c.href} target={c.icon === 'mail' ? undefined : '_blank'} rel="noreferrer">
+              <a className="contact-pill glass" href={c.href} target="_blank" rel="noreferrer">
                 <Icon name={c.icon} size={38} strokeWidth={1.7} />
                 <span className="contact-pill__text">
                   <span>{c.label}</span>

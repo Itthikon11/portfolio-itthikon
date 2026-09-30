@@ -26,8 +26,30 @@ const useCanvasTexture = canvas => {
 };
 
 /**
+ * meshline marks the strap's two ends by giving them a neighbour equal to themselves, but its shader
+ * compares that neighbour against a position that went through extra float math (`* aspect`), so the
+ * test randomly fails and the end is squared off along the normalised rounding noise — the cut at the
+ * ring flickered every frame. Extrapolated end neighbours make both code paths give the same answer.
+ */
+const fixLineEnds = geometry => {
+  const pos = geometry.attributes.position.array;
+  const prev = geometry.attributes.previous.array;
+  const next = geometry.attributes.next.array;
+  const n = pos.length;
+  // each point is stored twice (one vertex per side of the ribbon), 6 floats per point
+  for (let k = 0; k < 3; k++) {
+    prev[k] = prev[k + 3] = 2 * pos[k] - pos[k + 6];
+    next[n - 6 + k] = next[n - 3 + k] = 2 * pos[n - 6 + k] - pos[n - 12 + k];
+  }
+  geometry.attributes.previous.needsUpdate = true;
+  geometry.attributes.next.needsUpdate = true;
+};
+
+/**
  * Adapted from React Bits' Lanyard: the card is built from primitives instead of card.glb,
  * and the faces/strap come from canvases (`frontCanvas`, `backCanvas`, `bandCanvas`).
+ * The strap follows the joints' *rendered* (interpolated) positions rather than the raw physics
+ * ones, so it no longer stutters against the smoothly drawn card on high-refresh screens.
  */
 export default function Lanyard({
   position = [0, 0, 30],
@@ -105,18 +127,21 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60} paused={!active}>
-          <Band
-            key={anchor ? anchor.join() : 'center'}
-            anchor={anchor}
-            isMobile={isMobile}
-            frontCanvas={frontCanvas}
-            backCanvas={backCanvas}
-            bandCanvas={bandCanvas}
-            holderColor={holderColor}
-            metalColor={metalColor}
-            anchorY={anchorY}
-            lanyardWidth={lanyardWidth}
-          />
+          {/* wait for the anchor so the strap isn't dropped once at the centre and then again */}
+          {anchorRef && !anchor ? null : (
+            <Band
+              key={anchor ? anchor.join() : 'center'}
+              anchor={anchor}
+              isMobile={isMobile}
+              frontCanvas={frontCanvas}
+              backCanvas={backCanvas}
+              bandCanvas={bandCanvas}
+              holderColor={holderColor}
+              metalColor={metalColor}
+              anchorY={anchorY}
+              lanyardWidth={lanyardWidth}
+            />
+          )}
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -178,6 +203,19 @@ function Band({
     j2 = useRef(),
     j3 = useRef(),
     card = useRef();
+  // markers inside each body: their world position is where the body is drawn this frame
+  // (the strap's bottom end is pinned to the card's ring, not to j3: the card↔j3 joint is soft and
+  // stretches on a fling, which made the strap end wobble around the ring)
+  const fixedAt = useRef(),
+    j1At = useRef(),
+    j2At = useRef(),
+    ringAt = useRef();
+  const [drawn] = useState(() => ({
+    fixed: new THREE.Vector3(),
+    j1: new THREE.Vector3(),
+    j2: new THREE.Vector3(),
+    ring: new THREE.Vector3()
+  }));
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
     rot = new THREE.Vector3(),
@@ -216,20 +254,26 @@ function Band({
       [card, j1, j2, j3, fixed].forEach(ref => ref.current?.wakeUp());
       card.current?.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
     }
-    if (fixed.current) {
-      [j1, j2].forEach(ref => {
-        if (!ref.current.lerped) ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
-        const clampedDistance = Math.max(0.1, Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())));
-        ref.current.lerped.lerp(
-          ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
-        );
+    if (fixed.current && ringAt.current) {
+      fixedAt.current.getWorldPosition(drawn.fixed);
+      j1At.current.getWorldPosition(drawn.j1);
+      j2At.current.getWorldPosition(drawn.j2);
+      ringAt.current.getWorldPosition(drawn.ring);
+      [
+        [j1, drawn.j1],
+        [j2, drawn.j2]
+      ].forEach(([ref, target]) => {
+        if (!ref.current.lerped) ref.current.lerped = new THREE.Vector3().copy(target);
+        const clampedDistance = Math.max(0.1, Math.min(1, ref.current.lerped.distanceTo(target)));
+        // capped at 1 so a long frame can't overshoot the target
+        ref.current.lerped.lerp(target, Math.min(1, delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))));
       });
-      curve.points[0].copy(j3.current.translation());
+      curve.points[0].copy(drawn.ring);
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
-      curve.points[3].copy(fixed.current.translation());
+      curve.points[3].copy(drawn.fixed);
       band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      fixLineEnds(band.current.geometry);
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
@@ -242,12 +286,16 @@ function Band({
   return (
     <>
       <group position={origin}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
+        <RigidBody ref={fixed} {...segmentProps} type="fixed">
+          <group ref={fixedAt} />
+        </RigidBody>
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
+          <group ref={j1At} />
         </RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
           <BallCollider args={[0.1]} />
+          <group ref={j2At} />
         </RigidBody>
         <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
@@ -285,6 +333,8 @@ function Band({
               <torusGeometry args={[0.12, 0.03, 12, 32]} />
               <meshStandardMaterial color={metalColor} metalness={1} roughness={0.25} />
             </mesh>
+            {/* where the strap ends — the card-side anchor of the j3 joint */}
+            <group ref={ringAt} position={[0, 1.5, 0]} />
           </group>
         </RigidBody>
       </group>

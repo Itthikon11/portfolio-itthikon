@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { LINKS, PHOTO } from '../../data/content';
+import { composeMail, LINKS, PHOTO } from '../../data/content';
 import { drawBack, drawBand, drawFront, HOLDER_COLORS, loadImage } from '../cardCanvas';
 import { Icon } from '../Icons';
 import Rights from '../Rights';
@@ -47,13 +47,13 @@ export default function Contact() {
     };
   }, []);
 
-  // No backend: compose the message in the visitor's mail app.
+  // No backend: compose the message in Gmail.
   const onSubmit = e => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const subject = `Portfolio contact from ${data.get('name')}`;
     const body = `${data.get('message')}\n\n— ${data.get('name')} <${data.get('email')}>`;
-    window.location.href = `${LINKS.email.href}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(composeMail({ subject, body }), '_blank', 'noopener');
     setSent(true);
   };
 
@@ -71,7 +71,7 @@ export default function Contact() {
         <h3>{t.contactInfo}</h3>
         <ul className="info-list">
           <li>
-            <a className="info-row" href={LINKS.email.href}>
+            <a className="info-row" href={LINKS.email.href} target="_blank" rel="noreferrer">
               <span className="info-row__icon">
                 <Icon name="mail" size={22} />
               </span>

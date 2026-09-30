@@ -10,6 +10,10 @@ import './CircularGallery.css';
  * - drag and wheel listen on the gallery itself (not the whole window); move/up stay on window
  *   so a drag can leave the canvas
  * - the font is whatever the page already loaded (no Google Fonts fetch)
+ * - cards stay flat (no wave wobble) and textures use anisotropic filtering so tilted cards stay sharp
+ * - the wheel scrolls in proportion to its delta, so trackpads and wheels glide instead of stepping
+ * - `onSelect(i)` fires when a card is clicked/tapped (or Enter on the centred one) and eases it to
+ *   the centre; `onActive(i)` fires whenever a different card becomes the centred one
  */
 
 function debounce(func, wait) {
@@ -150,7 +154,8 @@ class Media {
   }
   createShader() {
     const texture = new Texture(this.gl, {
-      generateMipmaps: true
+      generateMipmaps: true,
+      anisotropy: 16
     });
     this.program = new Program(this.gl, {
       depthTest: false,
@@ -161,14 +166,10 @@ class Media {
         attribute vec2 uv;
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
-        uniform float uTime;
-        uniform float uSpeed;
         varying vec2 vUv;
         void main() {
           vUv = uv;
-          vec3 p = position;
-          p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + uSpeed * 0.5);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragment: `
@@ -208,8 +209,6 @@ class Media {
         tMap: { value: texture },
         uPlaneSizes: { value: [0, 0] },
         uImageSizes: { value: [0, 0] },
-        uSpeed: { value: 0 },
-        uTime: { value: 100 * Math.random() },
         uBorderRadius: { value: this.borderRadius }
       },
       transparent: true
@@ -263,9 +262,6 @@ class Media {
       }
     }
 
-    this.speed = scroll.current - scroll.last;
-    this.program.uniforms.uTime.value += 0.04;
-    this.program.uniforms.uSpeed.value = this.speed;
 
     const planeOffset = this.plane.scale.x / 2;
     const viewportOffset = this.viewport.width / 2;
@@ -308,13 +304,19 @@ class App {
       scrollEase = 0.05,
       itemWidth = 700,
       itemHeight = 900,
-      intro = 0
+      intro = 0,
+      onSelect,
+      onActive
     } = {}
   ) {
     this.container = container;
+    this.itemCount = items.length;
+    this.onSelect = onSelect;
+    this.onActive = onActive;
+    this.active = -1;
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
-    this.onCheckDebounce = debounce(this.onCheck, 200);
+    this.onCheckDebounce = debounce(this.onCheck, 350);
     this.createRenderer();
     this.createCamera();
     this.createScene();
@@ -379,23 +381,52 @@ class App {
   onTouchDown(e) {
     this.isDown = true;
     this.scroll.position = this.scroll.current;
-    this.start = e.touches ? e.touches[0].clientX : e.clientX;
+    const point = e.touches ? e.touches[0] : e;
+    this.start = point.clientX;
+    this.startY = point.clientY;
+    this.moved = false;
   }
   onTouchMove(e) {
     if (!this.isDown) return;
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const point = e.touches ? e.touches[0] : e;
+    const x = point.clientX;
+    if (Math.abs(x - this.start) > 6 || Math.abs(point.clientY - this.startY) > 6) this.moved = true;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
   }
-  onTouchUp() {
+  onTouchUp(e) {
     if (!this.isDown) return;
     this.isDown = false;
-    this.onCheck();
+    const point = e.changedTouches ? e.changedTouches[0] : e;
+    const media = !this.moved && point ? this.mediaAt(point.clientX, point.clientY) : null;
+    if (media) this.select(media);
+    else this.onCheck();
+  }
+  // the card under a screen point (bend rotation ignored — close enough for hit testing)
+  mediaAt(clientX, clientY) {
+    const rect = this.container.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width - 0.5) * this.viewport.width;
+    const y = (0.5 - (clientY - rect.top) / rect.height) * this.viewport.height;
+    return this.medias.find(m => {
+      const { position, scale } = m.plane;
+      return Math.abs(x - position.x) < scale.x / 2 && Math.abs(y - position.y) < scale.y / 2;
+    });
+  }
+  centred() {
+    return this.medias.reduce((best, m) => (Math.abs(m.plane.position.x) < Math.abs(best.plane.position.x) ? m : best));
+  }
+  select(media) {
+    // plane.position.x = x - scroll - extra, so this scroll puts the card at the centre
+    this.scroll.target = media.x - media.extra;
+    this.onSelect?.(media.index % this.itemCount);
   }
   onWheel(e) {
-    const delta = e.deltaY || e.deltaX;
+    let delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
     if (!delta) return;
-    this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
+    if (e.deltaMode === 1) delta *= 16; // lines -> px
+    // ~one card per 2.5 wheel notches (100px each); capped so a hard flick doesn't fly off
+    const step = Math.max(-1, Math.min(1, delta / 250)) * this.medias[0].width;
+    this.scroll.target += step;
     this.onCheckDebounce();
   }
   onKeyDown(e) {
@@ -410,6 +441,12 @@ class App {
         e.preventDefault();
         this.scroll.target -= this.scrollSpeed * 5;
         this.onCheckDebounce();
+        break;
+
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        this.select(this.centred());
         break;
 
       case 'Home':
@@ -452,6 +489,11 @@ class App {
     const direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
     if (this.medias) {
       this.medias.forEach(media => media.update(this.scroll, direction));
+      const active = this.centred().index % this.itemCount;
+      if (active !== this.active) {
+        this.active = active;
+        this.onActive?.(active);
+      }
     }
     this.renderer.render({ scene: this.scene, camera: this.camera });
     this.scroll.last = this.scroll.current;
@@ -505,9 +547,16 @@ export default function CircularGallery({
   itemWidth = 700,
   itemHeight = 900,
   intro = 0,
-  label = 'Circular image gallery. Use left and right arrow keys to navigate.'
+  label = 'Circular image gallery. Use left and right arrow keys to navigate.',
+  onSelect,
+  onActive
 }) {
   const containerRef = useRef(null);
+  // callbacks go through refs so a new function identity doesn't rebuild the whole scene
+  const onSelectRef = useRef(onSelect);
+  const onActiveRef = useRef(onActive);
+  onSelectRef.current = onSelect;
+  onActiveRef.current = onActive;
   useEffect(() => {
     if (!containerRef.current || !items?.length) return;
     let app;
@@ -525,7 +574,9 @@ export default function CircularGallery({
         scrollEase,
         itemWidth,
         itemHeight,
-        intro
+        intro,
+        onSelect: i => onSelectRef.current?.(i),
+        onActive: i => onActiveRef.current?.(i)
       });
     });
 

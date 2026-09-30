@@ -69,7 +69,6 @@ export default function Education() {
                 <span className="edu-card__years">{item.years}</span>
               </header>
               <p className="edu-card__school">{item.school}</p>
-              <p className="edu-card__grade">{item.grade}</p>
             </article>
           </li>
         ))}
