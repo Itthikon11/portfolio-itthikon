@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { composeMail, LINKS, PHOTO } from '../../data/content';
 import { drawBack, drawBand, drawFront, HOLDER_COLORS, loadImage } from '../cardCanvas';
@@ -9,6 +9,42 @@ import Rights from '../Rights';
 const Lanyard = lazy(() => import('../reactbits/Lanyard'));
 
 let photoPromise;
+
+// Below this width the section stacks into one tall column, where the full-section lanyard canvas
+// stretches the strap and drops the card off-screen — phones get a flat card that flips instead.
+const COMPACT = '(max-width: 1024px)';
+
+function useCompact() {
+  const [compact, setCompact] = useState(() => window.matchMedia(COMPACT).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(COMPACT);
+    const onChange = () => setCompact(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return compact;
+}
+
+function FlipCard({ front, back, label }) {
+  const [flipped, setFlipped] = useState(false);
+  const src = useMemo(() => ({ front: front.toDataURL(), back: back.toDataURL() }), [front, back]);
+  return (
+    <button
+      type="button"
+      className="id-card"
+      data-flipped={flipped || undefined}
+      aria-label={label}
+      title={label}
+      onClick={() => setFlipped(f => !f)}
+    >
+      <span className="id-card__clip" aria-hidden="true" />
+      <span className="id-card__inner">
+        <img src={src.front} alt="" className="id-card__face" draggable="false" />
+        <img src={src.back} alt="" className="id-card__face id-card__face--back" draggable="false" />
+      </span>
+    </button>
+  );
+}
 
 function useCardCanvases(theme, t) {
   const [canvases, setCanvases] = useState(null);
@@ -34,6 +70,7 @@ export default function Contact() {
   const [visible, setVisible] = useState(false);
   const [sent, setSent] = useState(false);
   const canvases = useCardCanvases(theme, t);
+  const compact = useCompact();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -147,26 +184,35 @@ export default function Contact() {
         </p>
       </form>
 
-      {/* empty grid cell the strap hangs from; the canvas itself spans the whole section so the card can be pulled anywhere */}
-      <div ref={anchorRef} className="contact__lanyard" aria-label={t.dragCard} title={t.dragCard} />
-      {near && canvases ? (
-        <Suspense fallback={null}>
-          <Lanyard
-            frontCanvas={canvases.front}
-            backCanvas={canvases.back}
-            bandCanvas={canvases.band}
-            holderColor={HOLDER_COLORS[theme]}
-            metalColor={theme === 'dark' ? '#9a9ca3' : '#d3d5da'}
-            position={[0, 0, 18]}
-            fov={20}
-            anchorY={3.4}
-            anchorRef={anchorRef}
-            eventSource={sectionRef}
-            lanyardWidth={1.4}
-            active={visible}
-          />
-        </Suspense>
-      ) : null}
+      {compact ? (
+        <div className="contact__card">
+          {canvases ? <FlipCard front={canvases.front} back={canvases.back} label={t.flipCard} /> : null}
+          <p className="contact__card-hint">{t.flipCard}</p>
+        </div>
+      ) : (
+        <>
+          {/* empty grid cell the strap hangs from; the canvas itself spans the whole section so the card can be pulled anywhere */}
+          <div ref={anchorRef} className="contact__lanyard" aria-label={t.dragCard} title={t.dragCard} />
+          {near && canvases ? (
+            <Suspense fallback={null}>
+              <Lanyard
+                frontCanvas={canvases.front}
+                backCanvas={canvases.back}
+                bandCanvas={canvases.band}
+                holderColor={HOLDER_COLORS[theme]}
+                metalColor={theme === 'dark' ? '#9a9ca3' : '#d3d5da'}
+                position={[0, 0, 18]}
+                fov={20}
+                anchorY={3.4}
+                anchorRef={anchorRef}
+                eventSource={sectionRef}
+                lanyardWidth={1.4}
+                active={visible}
+              />
+            </Suspense>
+          ) : null}
+        </>
+      )}
 
       <Rights />
     </section>

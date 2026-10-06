@@ -2,8 +2,6 @@
 
 export const PHOTO = '/images/32c063d4-3fb5-4df0-850d-ffdb9a1e3324.png';
 
-export const NAME = 'ITTHIKON SAKUMKAEW';
-
 const EMAIL = 'itthikon.sa11@gmail.com';
 
 // Opens Gmail's compose window in a new tab — mailto: does nothing for visitors without a mail app set up.
@@ -17,15 +15,16 @@ export const composeMail = ({ subject, body } = {}) => {
 export const LINKS = {
   github: { handle: 'Itthikon11', href: 'https://github.com/Itthikon11' },
   email: { handle: EMAIL, href: composeMail() },
-  linkedin: { handle: 'ItthikonSakunkaew', href: 'https://www.linkedin.com/in/ItthikonSakunkaew' }
+  linkedin: { handle: 'Itthikon Sakunkaew', href: 'https://www.linkedin.com/in/itthikon/' }
 };
 
-export const SONG = { title: 'End of Beginning', artist: 'Djo', album: 'DECIDE', duration: 159 }; // seconds
+// Shown on the iPod screen in place of a track: a two-line title and a small "open to" tag.
+export const SONG = { title: 'Full-Stack', subtitle: 'Developer', tag: 'Hybrid · On-site', duration: 159 }; // seconds
 
 export const SKILLS = [
   [
-    { label: 'Frontend', items: ['React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Tailwind CSS', 'Flutter', 'Dart', 'Android Studio'] },
-    { label: 'Backend', items: ['NestJS', 'Node.js', 'Express.js'] }
+    { label: 'Frontend', items: ['React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Tailwind CSS', 'Flutter', 'Dart'] },
+    { label: 'Backend', items: ['Java', 'PHP', 'Node.js', 'Express.js'] }
   ],
   [
     { label: 'Database', items: ['PostgreSQL', 'MySQL', 'MongoDB', 'Supabase', 'Firebase'] },
@@ -382,12 +381,14 @@ export const pick = (value, lang) => (value && typeof value === 'object' && !Arr
 
 export const TEXT = {
   en: {
+    name: 'ITTHIKON SAKUMKAEW',
     nav: { home: 'Home', education: 'Education', skills: 'Skills', projects: 'Projects', contact: 'Contact' },
     available: 'AVAILABLE FOR HIRE',
+    viewPhoto: 'View photo',
     aboutTitle: 'About Me',
     about: [
       'I’m a Full-Stack Developer who started out in hardware and electronics (IT Support) before moving into enterprise software development.',
-      'What sets me apart is the blend of technical skills — building ERP web applications for government agencies, an OCR slip-verification system, a solar-powered IoT system and GIS systems — with on-site communication and problem-solving skills gained from real experience in Sales Support and delivering projects to clients.',
+      'What sets me apart is the blend of technical skills — building ERP web applications for government agencies, an OCR slip-verification system, a solar-powered IoT system and GIS systems — with on-site communication and problem-solving skills gained from real-world work experience.',
       'I believe good software doesn’t just need correct code with strong security down to the database level — it also has to be easy to use, stable, and genuinely meet the needs of the people using it.'
     ],
     contactInfo: 'Contact Information',
@@ -430,23 +431,26 @@ export const TEXT = {
     question: 'Have a question or want to work together?',
     email: 'Email',
     location: 'Location',
-    locationValue: 'Bangkok, Thailand',
+    locationValue: 'Korat, Thailand',
     followMe: 'Follow Me',
     form: { name: 'Name', email: 'Email', message: 'Message', send: 'Send Message', sent: 'Opening your mail app…' },
     role: ['Full-Stack', 'developer'],
-    dragCard: 'Drag the card',
+    dragCard: 'Drag the card · click to flip it',
+    flipCard: 'Tap the card to flip it',
     rights: '© 2026 Itthikon | Portfolio. All rights reserved.',
     themeToLight: 'Switch to light mode',
     themeToDark: 'Switch to dark mode',
     langSwitch: 'เปลี่ยนเป็นภาษาไทย'
   },
   th: {
+    name: 'อิทธิกร สกุลแก้ว',
     nav: { home: 'หน้าแรก', education: 'การศึกษา', skills: 'ทักษะ', projects: 'ผลงาน', contact: 'ติดต่อ' },
     available: 'พร้อมร่วมงาน',
+    viewPhoto: 'ดูรูป',
     aboutTitle: 'เกี่ยวกับฉัน',
     about: [
       'ผมเป็น Full-Stack Developer ที่มีพื้นฐานการเริ่มต้นเส้นทางสายเทคโนโลยีจากงานฮาร์ดแวร์และอิเล็กทรอนิกส์ (IT Support) ก่อนจะก้าวเข้าสู่การพัฒนาซอฟต์แวร์ระดับองค์กร',
-      'ความโดดเด่นของผมคือการผสมผสานระหว่าง "ทักษะเชิงเทคนิค" (เช่น การพัฒนาเว็บแอปพลิเคชัน ERP สำหรับภาครัฐ, ระบบ OCR ตรวจสลิป, ระบบ IoT โซลาร์เซลล์ และระบบ GIS) เข้ากับ "ทักษะการสื่อสารและการแก้ปัญหาหน้างาน" ผ่านประสบการณ์จริงในฐานะ Sales Support และผู้ส่งมอบงานโปรเจกต์',
+      'ความโดดเด่นของผมคือการผสมผสานระหว่าง "ทักษะเชิงเทคนิค" (เช่น การพัฒนาเว็บแอปพลิเคชัน ERP สำหรับภาครัฐ, ระบบ OCR ตรวจสลิป, ระบบ IoT โซลาร์เซลล์ และระบบ GIS) เข้ากับ "ทักษะการสื่อสารและการแก้ปัญหาหน้างาน" ผ่านประสบการณ์การทำงานจริง',
       'ผมเชื่อว่าซอฟต์แวร์ที่ดีและมีประสิทธิภาพ ไม่เพียงแต่ต้องเขียนโค้ดให้ถูกต้องและมีความปลอดภัยสูงในระดับฐานข้อมูลเท่านั้น แต่ยังต้องใช้งานง่าย เสถียร และตอบโจทย์ผู้ใช้งานได้จริง'
     ],
     contactInfo: 'ช่องทางติดต่อ',
@@ -472,7 +476,7 @@ export const TEXT = {
     skillsSub: 'เทคโนโลยีและเครื่องมือที่ใช้',
     projectsTitle: 'ผลงาน',
     projectsSub: 'ผลงานล่าสุดบางส่วน',
-    poke: ['เบื่อไหม? จิ้ม', 'ตรงนี้เลย'],
+    poke: ['คลิกเปิดแฟ้ม', 'ดูผลงานได้เลย'],
     backToFolder: 'ปิดแฟ้ม',
     viewProject: 'ดูโปรเจค',
     viewDetails: 'ดูรายละเอียด',
@@ -489,11 +493,12 @@ export const TEXT = {
     question: 'มีคำถาม หรืออยากร่วมงานกัน?',
     email: 'อีเมล',
     location: 'ที่อยู่',
-    locationValue: 'กรุงเทพฯ, ประเทศไทย',
+    locationValue: 'โคราช, ประเทศไทย',
     followMe: 'ติดตาม',
     form: { name: 'ชื่อ', email: 'อีเมล', message: 'ข้อความ', send: 'ส่งข้อความ', sent: 'กำลังเปิดแอปอีเมล…' },
     role: ['Full-Stack', 'developer'],
-    dragCard: 'ลากบัตรได้',
+    dragCard: 'ลากบัตรได้ · คลิกเพื่อพลิกดูด้านหลัง',
+    flipCard: 'แตะบัตรเพื่อพลิกดูด้านหลัง',
     rights: '© 2026 Itthikon | Portfolio. สงวนลิขสิทธิ์',
     themeToLight: 'เปลี่ยนเป็นโหมดสว่าง',
     themeToDark: 'เปลี่ยนเป็นโหมดมืด',

@@ -13,6 +13,10 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 const CARD_W = 1.6;
 const CARD_H = 2.25;
 
+// A press that moves less than this (px) and ends within CLICK_MS is a click, which flips the card.
+const CLICK_PX = 6;
+const CLICK_MS = 350;
+
 const useCanvasTexture = canvas => {
   const tex = useMemo(() => {
     const t = new THREE.CanvasTexture(canvas);
@@ -218,7 +222,6 @@ function Band({
   }));
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
-    rot = new THREE.Vector3(),
     dir = new THREE.Vector3();
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
   const frontTex = useCanvasTexture(frontCanvas);
@@ -230,6 +233,9 @@ function Band({
   );
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
+  // which face the card turns towards; read every frame, so a ref rather than state
+  const flipped = useRef(false);
+  const pressAt = useRef(null);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -275,8 +281,11 @@ function Band({
       band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
       fixLineEnds(band.current.geometry);
       ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      const q = card.current.rotation();
+      // spring the card's turn about the strap towards the face it should show
+      const yaw = 2 * Math.atan2(q.y, q.w);
+      const err = THREE.MathUtils.euclideanModulo(yaw - (flipped.current ? Math.PI : 0) + Math.PI, Math.PI * 2) - Math.PI;
+      card.current.setAngvel({ x: ang.x, y: ang.y - err * 0.125, z: ang.z });
     }
   });
 
@@ -305,11 +314,24 @@ function Band({
           <group
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={e => (e.target.releasePointerCapture(e.pointerId), drag(false))}
-            onPointerDown={e => (
-              e.target.setPointerCapture(e.pointerId),
-              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
-            )}
+            onPointerUp={e => {
+              e.target.releasePointerCapture(e.pointerId);
+              drag(false);
+              const p = pressAt.current;
+              if (p && performance.now() - p.t < CLICK_MS && Math.hypot(e.clientX - p.x, e.clientY - p.y) < CLICK_PX) {
+                flipped.current = !flipped.current;
+                card.current.wakeUp();
+                // a kick to start the turn; the spring above settles it on the other face
+                const a = card.current.angvel();
+                card.current.setAngvel({ x: a.x, y: a.y + 9, z: a.z });
+              }
+              pressAt.current = null;
+            }}
+            onPointerDown={e => {
+              e.target.setPointerCapture(e.pointerId);
+              pressAt.current = { x: e.clientX, y: e.clientY, t: performance.now() };
+              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
+            }}
           >
             <RoundedBox args={[CARD_W - 0.02, CARD_H - 0.02, 0.03]} radius={0.07} smoothness={4}>
               <meshPhysicalMaterial color={holderColor} clearcoat={isMobile ? 0 : 0.4} roughness={0.6} envMapIntensity={0.25} />

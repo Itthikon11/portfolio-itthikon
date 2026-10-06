@@ -1,5 +1,5 @@
 import { ICON_PATHS } from './Icons';
-import { LINKS, NAME } from '../data/content';
+import { LINKS } from '../data/content';
 
 // 512×720 keeps the 1.6 : 2.25 ratio of the lanyard card.
 const W = 512;
@@ -99,8 +99,8 @@ export function drawFront(theme, t, photo) {
 
   ctx.fillStyle = p.ink;
   ctx.textAlign = 'center';
-  fitText(ctx, NAME, 400, 32, FONT, 700);
-  ctx.fillText(NAME, W / 2, 540);
+  fitText(ctx, t.name, 400, 32, FONT, 700);
+  ctx.fillText(t.name, W / 2, 540);
   ctx.font = `600 28px ${FONT}`;
   ctx.fillStyle = p.muted;
   ctx.fillText(t.role[0], W / 2, 590);
@@ -143,8 +143,8 @@ export function drawBack(theme, t) {
   });
 
   ctx.fillStyle = p.ink;
-  fitText(ctx, NAME, 380, 30, FONT, 700);
-  ctx.fillText(NAME, 66, 630);
+  fitText(ctx, t.name, 380, 30, FONT, 700);
+  ctx.fillText(t.name, 66, 630);
   return c;
 }
 

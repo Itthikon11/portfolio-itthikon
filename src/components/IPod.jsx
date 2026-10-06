@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import { PHOTO, SONG } from '../data/content';
+import { Icon } from './Icons';
 
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -10,10 +12,37 @@ const SCREEN = {
   dark: { src: '/images/ipod2.png', left: 12.4, top: 7.1, width: 75.2, height: 37.6 }
 };
 
+// The cover photo full size over the page. Esc or a click anywhere closes it.
+function PhotoView({ alt, onClose, closeLabel }) {
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    const restore = document.activeElement;
+    closeRef.current?.focus();
+    const onKey = e => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      restore?.focus?.();
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div className="photo-view" role="dialog" aria-modal="true" aria-label={alt} onClick={onClose}>
+      <img src={PHOTO} alt={alt} className="photo-view__img" />
+      <button ref={closeRef} type="button" className="photo-view__close" onClick={onClose} aria-label={closeLabel}>
+        <Icon name="close" size={20} />
+      </button>
+    </div>,
+    document.body
+  );
+}
+
 export default function IPod() {
-  const { theme } = useApp();
+  const { theme, t } = useApp();
   const [playing, setPlaying] = useState(true);
   const [elapsed, setElapsed] = useState(40);
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   useEffect(() => {
     if (!playing) return undefined;
@@ -35,11 +64,16 @@ export default function IPod() {
           <span className="ipod__battery" />
         </div>
         <div className="ipod__now">
-          <img src={PHOTO} alt="Itthikon Sakumkaew" className="ipod__cover" />
+          <button type="button" className="ipod__cover-btn" onClick={() => setPhotoOpen(true)} aria-label={t.viewPhoto} title={t.viewPhoto}>
+            <img src={PHOTO} alt={t.name} className="ipod__cover" />
+          </button>
           <div className="ipod__meta">
             <strong>{SONG.title}</strong>
-            <span>{SONG.artist}</span>
-            <span>{SONG.album}</span>
+            <span>{SONG.subtitle}</span>
+            <span className="ipod__tag">
+              <span className="status-dot" aria-hidden="true" />
+              {SONG.tag}
+            </span>
           </div>
         </div>
         <div className="ipod__progress">
@@ -58,6 +92,7 @@ export default function IPod() {
         aria-label={playing ? 'Pause' : 'Play'}
         aria-pressed={playing}
       />
+      {photoOpen ? <PhotoView alt={t.name} closeLabel={t.close} onClose={() => setPhotoOpen(false)} /> : null}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useApp } from '../../context/AppContext';
-import { LINKS, NAME } from '../../data/content';
+import { LINKS } from '../../data/content';
 import { Icon } from '../Icons';
 import IPod from '../IPod';
 import Rights from '../Rights';
@@ -18,7 +18,7 @@ export default function Home() {
         <p className="eyebrow">
           {t.available} <span className="status-dot" aria-hidden="true" />
         </p>
-        <h1 className="display-name">{NAME}</h1>
+        <h1 className="display-name">{t.name}</h1>
         <IPod />
       </div>
       <div className="home__right">
