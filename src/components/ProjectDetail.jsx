@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import { pick, PROJECTS } from '../data/content';
@@ -30,6 +30,10 @@ export default function ProjectDetail({ index, onClose, onNavigate }) {
   const project = PROJECTS[index];
   const count = PROJECTS.length;
   const step = d => onNavigate((index + d + count) % count);
+  const shots = project.gallery ?? [];
+  // index of the image open in the lightbox, or null
+  const [lightbox, setLightbox] = useState(null);
+  const lightStep = d => setLightbox(i => (i + d + shots.length) % shots.length);
 
   useEffect(() => {
     const restore = document.activeElement;
@@ -39,10 +43,18 @@ export default function ProjectDetail({ index, onClose, onNavigate }) {
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 });
+    setLightbox(null);
   }, [index]);
 
   useEffect(() => {
     const onKey = e => {
+      // while the lightbox is open it captures the keys; Esc closes it, arrows step photos
+      if (lightbox !== null) {
+        if (e.key === 'Escape') setLightbox(null);
+        else if (e.key === 'ArrowRight') lightStep(1);
+        else if (e.key === 'ArrowLeft') lightStep(-1);
+        return;
+      }
       if (e.key === 'Escape') onClose();
       else if (e.key === 'ArrowRight') step(1);
       else if (e.key === 'ArrowLeft') step(-1);
@@ -96,6 +108,25 @@ export default function ProjectDetail({ index, onClose, onNavigate }) {
             ) : null}
           </section>
 
+          {shots.length ? (
+            <section className="pdetail__gallery">
+              <h4>{t.screens}</h4>
+              <div className="pdetail__shots">
+                {shots.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    className="pdetail__shot"
+                    onClick={() => setLightbox(i)}
+                    aria-label={`${t.screens} ${i + 1}`}
+                  >
+                    <img src={src} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <div className="pdetail__cols">
             <section>
               <h4>{pick(project.featuresLabel, lang) || t.features}</h4>
@@ -146,6 +177,41 @@ export default function ProjectDetail({ index, onClose, onNavigate }) {
           </button>
         </footer>
       </article>
+
+      {lightbox !== null ? (
+        <div className="pdetail__lightbox" onClick={() => setLightbox(null)}>
+          <button type="button" className="pdetail__lb-close" onClick={() => setLightbox(null)} aria-label={t.close}>
+            <Icon name="close" size={22} />
+          </button>
+          {shots.length > 1 ? (
+            <button
+              type="button"
+              className="pdetail__lb-nav pdetail__lb-nav--prev"
+              onClick={e => { e.stopPropagation(); lightStep(-1); }}
+              aria-label={t.prevProject}
+            >
+              <Icon name="chevronLeft" size={26} />
+            </button>
+          ) : null}
+          <img
+            className="pdetail__lb-img"
+            src={shots[lightbox]}
+            alt=""
+            onClick={e => e.stopPropagation()}
+          />
+          {shots.length > 1 ? (
+            <button
+              type="button"
+              className="pdetail__lb-nav pdetail__lb-nav--next"
+              onClick={e => { e.stopPropagation(); lightStep(1); }}
+              aria-label={t.nextProject}
+            >
+              <Icon name="chevronRight" size={26} />
+            </button>
+          ) : null}
+          <span className="pdetail__lb-count">{lightbox + 1} / {shots.length}</span>
+        </div>
+      ) : null}
     </div>,
     document.body
   );

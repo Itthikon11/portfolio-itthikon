@@ -85,6 +85,17 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Node.js', 'MySQL', 'Growatt API'],
+    image: '/images/projects/solar-smart-energy/01.webp',
+    gallery: [
+      '/images/projects/solar-smart-energy/01.webp',
+      '/images/projects/solar-smart-energy/02.webp',
+      '/images/projects/solar-smart-energy/03.webp',
+      '/images/projects/solar-smart-energy/04.webp',
+      '/images/projects/solar-smart-energy/05.webp',
+      '/images/projects/solar-smart-energy/06.webp',
+      '/images/projects/solar-smart-energy/07.webp',
+      '/images/projects/solar-smart-energy/08.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'Recharts', 'Leaflet', 'OGL (WebGL)'] },
       { label: 'Backend', items: ['Node.js', 'Express', 'MySQL', 'JWT', 'node-cron', 'Nodemailer'] },
@@ -144,6 +155,15 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Supabase', 'Realtime', 'Vercel'],
+    image: '/images/projects/tokyo-house/01.webp',
+    gallery: [
+      '/images/projects/tokyo-house/01.webp',
+      '/images/projects/tokyo-house/02.webp',
+      '/images/projects/tokyo-house/03.webp',
+      '/images/projects/tokyo-house/04.webp',
+      '/images/projects/tokyo-house/05.webp',
+      '/images/projects/tokyo-house/06.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'Recharts', 'qrcode.react'] },
       { label: 'Backend', items: ['Supabase', 'PostgreSQL', 'Realtime', 'RLS', 'RPC & Triggers', 'pg_cron', 'Storage'] },
@@ -209,6 +229,19 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Supabase', 'LINE API', 'Edge Functions'],
+    image: '/images/projects/goverlution/01.webp',
+    gallery: [
+      '/images/projects/goverlution/01.webp',
+      '/images/projects/goverlution/02.webp',
+      '/images/projects/goverlution/03.webp',
+      '/images/projects/goverlution/04.webp',
+      '/images/projects/goverlution/05.webp',
+      '/images/projects/goverlution/06.webp',
+      '/images/projects/goverlution/07.webp',
+      '/images/projects/goverlution/08.webp',
+      '/images/projects/goverlution/09.webp',
+      '/images/projects/goverlution/10.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React', 'Vite', 'PrimeReact', 'Tailwind CSS', 'Chart.js', 'Leaflet'] },
       { label: 'Libraries', items: ['ExcelJS', 'ZXing (QR/Barcode)'] },
@@ -266,6 +299,16 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Supabase', 'tesseract.js', 'jsPDF'],
+    image: '/images/projects/e-tax/01.webp',
+    gallery: [
+      '/images/projects/e-tax/01.webp',
+      '/images/projects/e-tax/02.webp',
+      '/images/projects/e-tax/03.webp',
+      '/images/projects/e-tax/04.webp',
+      '/images/projects/e-tax/05.webp',
+      '/images/projects/e-tax/06.webp',
+      '/images/projects/e-tax/07.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React 19', 'Vite', 'PrimeReact', 'Tailwind CSS', 'ApexCharts', 'Leaflet'] },
       { label: 'Documents', items: ['jsPDF', 'ExcelJS'] },
@@ -316,6 +359,14 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Express', 'MySQL', 'WebGL'],
+    image: '/images/projects/thermo-maniq/01.webp',
+    gallery: [
+      '/images/projects/thermo-maniq/01.webp',
+      '/images/projects/thermo-maniq/02.webp',
+      '/images/projects/thermo-maniq/03.webp',
+      '/images/projects/thermo-maniq/04.webp',
+      '/images/projects/thermo-maniq/05.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React', 'Vite', 'Tailwind CSS', 'GSAP', 'OGL (WebGL2)'] },
       { label: 'Backend', items: ['Node.js', 'Express', 'MySQL', 'JWT', 'bcrypt', 'Multer'] }
@@ -367,10 +418,199 @@ export const PROJECTS = [
       ]
     },
     tags: ['React', 'Leaflet', 'Supabase', 'Python'],
+    image: '/images/projects/map-ta/01.webp',
+    gallery: [
+      '/images/projects/map-ta/01.webp',
+      '/images/projects/map-ta/02.webp',
+      '/images/projects/map-ta/03.webp'
+    ],
     stack: [
       { label: 'Frontend', items: ['React', 'Vite', 'PrimeReact', 'Tailwind CSS', 'Leaflet', 'Canvas API'] },
       { label: 'Backend', items: ['Supabase', 'PostgreSQL', 'RLS'] },
       { label: 'Data', items: ['Python (ETL)', 'KML', 'GeoJSON'] }
+    ],
+    href: ''
+  },
+  {
+    title: 'StockHub Link',
+    glyph: 'box',
+    accent: ['#fda4af', '#be123c'],
+    category: { en: 'Stock & sales', th: 'ระบบสต็อกและยอดขาย' },
+    tagline: {
+      en: 'Offline-first PWA for small shops to run stock, sales and monthly summaries.',
+      th: 'แอป PWA สำหรับร้านค้า จัดการสต็อก ยอดขาย และสรุปรายเดือน ใช้งานออฟไลน์ได้'
+    },
+    overview: {
+      en: 'Shop owners and staff sign in to manage their own shop: on-hand stock, opening sacks into smaller units, receiving and adjustments, sales by channel and a monthly summary with charts. Data stays in sync across every device and the app keeps working offline.',
+      th: 'เจ้าของร้านและพนักงานล็อกอินเข้ามาจัดการร้านของตัวเอง ดูสต็อกคงเหลือ แกะกระสอบเป็นหน่วยย่อย รับเข้า/ปรับยอด บันทึกการขายแยกช่องทาง และดูสรุปรายเดือนพร้อมกราฟ ข้อมูลตรงกันทุกเครื่องและใช้งานต่อได้แม้เน็ตหลุด'
+    },
+    features: {
+      en: [
+        ['Stock:', 'on-hand quantities, opening a sack into smaller units, receiving and adjustments with a movement history'],
+        ['Sales:', 'record sales by channel (TikTok / Facebook / walk-in) with full sales history'],
+        ['Summary:', 'monthly sales, profit and cost with charts and a yearly table'],
+        ['Products:', 'manage products, prices and units'],
+        ['Multi-shop:', 'switch between shops; a system admin can see every shop (invite-only)']
+      ],
+      th: [
+        ['สต็อก:', 'ยอดคงเหลือ แกะกระสอบเป็นหน่วยย่อย รับเข้า/ปรับยอด พร้อมประวัติการเคลื่อนไหว'],
+        ['ขาย:', 'บันทึกการขายแยกตามช่องทาง (TikTok / Facebook / หน้าร้าน) และประวัติการขาย'],
+        ['สรุป:', 'ยอดขาย กำไร และต้นทุนรายเดือน พร้อมกราฟและตารางสรุปรายปี'],
+        ['สินค้า:', 'จัดการสินค้า ตั้งราคา และหน่วยนับ'],
+        ['หลายร้าน:', 'สลับร้านได้ แอดมินระบบดูได้ทุกร้าน (invite-only)']
+      ]
+    },
+    highlights: {
+      en: [
+        ['Offline-first PWA:', 'installs to the home screen and keeps working with no connection, then syncs when back online'],
+        ['Security:', 'Supabase Auth + RLS, invite-only sign-up, a PIN lock and email-OTP verification'],
+        ['Per-shop isolation:', 'Row Level Security with role-based access (owner / admin / staff)'],
+        ['TypeScript:', 'the whole app is written in TypeScript on Vite']
+      ],
+      th: [
+        ['PWA ออฟไลน์:', 'ติดตั้งลงหน้าจอได้ ใช้งานต่อได้แม้ไม่มีเน็ต แล้ว sync เมื่อกลับมาออนไลน์'],
+        ['ความปลอดภัย:', 'Supabase Auth + RLS, สมัครแบบ invite-only, PIN ล็อกแอป และยืนยันอีเมลด้วย OTP'],
+        ['แยกข้อมูลแต่ละร้าน:', 'ด้วย Row Level Security และสิทธิ์ตามบทบาท (owner / admin / staff)'],
+        ['TypeScript:', 'เขียนด้วย TypeScript บน Vite ทั้งโปรเจค']
+      ]
+    },
+    tags: ['React', 'TypeScript', 'Supabase', 'PWA'],
+    image: '/images/projects/stockhub-link/01.webp',
+    gallery: [
+      '/images/projects/stockhub-link/01.webp',
+      '/images/projects/stockhub-link/02.webp',
+      '/images/projects/stockhub-link/03.webp',
+      '/images/projects/stockhub-link/04.webp',
+      '/images/projects/stockhub-link/05.webp',
+      '/images/projects/stockhub-link/06.webp',
+      '/images/projects/stockhub-link/07.webp',
+      '/images/projects/stockhub-link/08.webp',
+      '/images/projects/stockhub-link/09.webp'
+    ],
+    stack: [
+      { label: 'Frontend', items: ['React', 'TypeScript', 'Vite', 'PWA (Service Worker)'] },
+      { label: 'Backend', items: ['Supabase', 'PostgreSQL', 'RLS', 'Realtime'] },
+      { label: 'Deploy', items: ['Vercel'] }
+    ],
+    href: ''
+  },
+  {
+    title: 'usedbywachiii',
+    glyph: 'camera',
+    accent: ['#f9a8d4', '#be185d'],
+    category: { en: 'Camera rental', th: 'เช่ากล้อง' },
+    tagline: {
+      en: 'Y2K digital-camera rental shop with live availability and a booking calendar.',
+      th: 'ร้านเช่ากล้องดิจิทัลยุค Y2K พร้อมเช็คคิวว่างและปฏิทินการจอง'
+    },
+    overview: {
+      en: 'Customers browse the camera line-up, check each camera’s price and availability on a calendar, read reviews and the rental rules. Admins manage cameras, prices and bookings from the back office.',
+      th: 'ลูกค้าเลือกดูกล้องในร้าน ดูราคาและเช็คคิวว่างของแต่ละกล้องในปฏิทิน อ่านรีวิวและกฎการเช่า ส่วนแอดมินจัดการกล้อง ราคา และการจองหลังบ้าน'
+    },
+    features: {
+      en: [
+        ['Storefront:', '7 cameras with photos, price per day and details'],
+        ['Booking:', 'per-camera availability calendar and an all-camera queue table'],
+        ['Reviews:', 'renter reviews on each camera'],
+        ['Rules:', 'a page of rental terms and reminders'],
+        ['Admin:', 'manage cameras, prices and bookings']
+      ],
+      th: [
+        ['หน้าร้าน:', 'กล้อง 7 รุ่น พร้อมรูป ราคา/วัน และรายละเอียด'],
+        ['จอง:', 'ปฏิทินเช็คคิวว่างของแต่ละกล้อง และตารางคิวรวมทุกกล้อง'],
+        ['รีวิว:', 'รีวิวจากผู้เช่าในแต่ละกล้อง'],
+        ['กฎการเช่า:', 'หน้ารวมเงื่อนไขและข้อควรระวัง'],
+        ['แอดมิน:', 'จัดการกล้อง ราคา และการจอง']
+      ]
+    },
+    highlights: {
+      en: [
+        ['PWA:', 'installable to the home screen with a soft Y2K film look'],
+        ['Supabase:', 'cameras, bookings and reviews on Supabase with RLS'],
+        ['Availability:', 'each camera’s free/busy dates computed from live bookings']
+      ],
+      th: [
+        ['PWA:', 'ติดตั้งลงหน้าจอได้ ธีม Y2K ฟิล์มละมุน'],
+        ['Supabase:', 'ข้อมูลกล้อง การจอง และรีวิวบน Supabase พร้อม RLS'],
+        ['คิวว่าง:', 'คำนวณช่วงว่าง/ไม่ว่างของแต่ละกล้องจากการจองจริง']
+      ]
+    },
+    tags: ['React', 'Supabase', 'PWA', 'Vite'],
+    image: '/images/projects/usedbywachiii/01.webp',
+    gallery: [
+      '/images/projects/usedbywachiii/01.webp',
+      '/images/projects/usedbywachiii/02.webp',
+      '/images/projects/usedbywachiii/03.webp',
+      '/images/projects/usedbywachiii/04.webp',
+      '/images/projects/usedbywachiii/05.webp',
+      '/images/projects/usedbywachiii/06.webp',
+      '/images/projects/usedbywachiii/07.webp'
+    ],
+    stack: [
+      { label: 'Frontend', items: ['React', 'Vite', 'PWA'] },
+      { label: 'Backend', items: ['Supabase', 'PostgreSQL', 'RLS'] },
+      { label: 'Deploy', items: ['Vercel'] }
+    ],
+    href: ''
+  },
+  {
+    title: 'CAR HUB',
+    glyph: 'droplet',
+    accent: ['#86efac', '#15803d'],
+    category: { en: 'Product site', th: 'เว็บไซต์สินค้า' },
+    tagline: {
+      en: 'Product site for two car-care products with a 3D scroll story and 360° viewer.',
+      th: 'เว็บไซต์สินค้าดูแลรถ 2 ตัว พร้อม scroll story แบบ 3D และชมสินค้าหมุนรอบ 360°'
+    },
+    overview: {
+      en: 'A marketing site for CAR HUB — Quick Detailer (green) and Foam Wash (blue). Its signature is a scroll story where the spray bottle glides to centre screen, splits into its parts and reassembles, backed by a real 3D model you can spin.',
+      th: 'เว็บไซต์แนะนำผลิตภัณฑ์ดูแลรถ CAR HUB 2 ตัว — Quick Detailer (ธีมเขียว) และ Foam Wash (ธีมน้ำเงิน) จุดเด่นคือ scroll story ที่ขวดสเปรย์เลื่อนมากลางจอ แยกส่วนประกอบ แล้วประกอบกลับ พร้อมโมเดล 3D หมุนดูได้จริง'
+    },
+    features: {
+      en: [
+        ['Scroll story:', 'the bottle splits into parts and reassembles as you scroll (300 frames)'],
+        ['3D viewer:', 'spin the bottle a full 360° with react-three-fiber'],
+        ['Two products:', 'Quick Detailer and Foam Wash, each its own colour theme and page'],
+        ['Label & gallery:', 'label artwork and high-resolution product renders'],
+        ['How to use:', 'usage steps and the formula’s selling points']
+      ],
+      th: [
+        ['Scroll story:', 'เลื่อนหน้าแล้วขวดแยกส่วนประกอบและประกอบกลับ (300 เฟรม)'],
+        ['ชมสินค้า 3D:', 'หมุนดูขวดได้รอบ 360° ด้วย react-three-fiber'],
+        ['2 สินค้า:', 'Quick Detailer และ Foam Wash แยกธีมสีคนละหน้า'],
+        ['ฉลาก/แกลเลอรี:', 'อาร์ตเวิร์กฉลากและภาพเรนเดอร์ความละเอียดสูง'],
+        ['วิธีใช้:', 'ขั้นตอนการใช้งานและจุดเด่นของสูตร']
+      ]
+    },
+    highlights: {
+      en: [
+        ['3D on the web:', 'a .glb model from Blender rendered with react-three-fiber / Three.js'],
+        ['Scroll-driven:', 'an image sequence (hero.png + 300 webp frames) played by scroll position'],
+        ['Next.js:', 'App Router, two product routes, all copy kept in one data file']
+      ],
+      th: [
+        ['3D บนเว็บ:', 'โมเดล .glb จาก Blender แสดงด้วย react-three-fiber / Three.js'],
+        ['Scroll-driven:', 'เล่นซีเควนซ์ภาพ (hero.png + 300 เฟรม webp) ตามตำแหน่งการ scroll'],
+        ['Next.js:', 'App Router, 2 เส้นทางสินค้า, เก็บข้อความทั้งหมดไว้ไฟล์เดียว']
+      ]
+    },
+    tags: ['Next.js', 'Three.js', 'React', 'GSAP'],
+    image: '/images/projects/car-hub/01.webp',
+    gallery: [
+      '/images/projects/car-hub/01.webp',
+      '/images/projects/car-hub/02.webp',
+      '/images/projects/car-hub/03.webp',
+      '/images/projects/car-hub/04.webp',
+      '/images/projects/car-hub/05.webp',
+      '/images/projects/car-hub/06.webp',
+      '/images/projects/car-hub/07.webp',
+      '/images/projects/car-hub/08.webp',
+      '/images/projects/car-hub/09.webp'
+    ],
+    stack: [
+      { label: 'Frontend', items: ['Next.js', 'React', 'Three.js', 'react-three-fiber'] },
+      { label: '3D / Anim', items: ['Blender (.glb)', 'GSAP', 'scroll sequence'] },
+      { label: 'Deploy', items: ['Vercel'] }
     ],
     href: ''
   }
@@ -421,6 +661,7 @@ export const TEXT = {
     galleryHint: 'Drag to browse · click a card for details',
     featured: 'Featured',
     overview: 'Overview',
+    screens: 'Screens',
     features: 'Key features',
     highlights: 'Technical highlights',
     stack: 'Tech stack',
@@ -483,6 +724,7 @@ export const TEXT = {
     galleryHint: 'ลากเพื่อเลื่อนดู · คลิกการ์ดเพื่อดูรายละเอียด',
     featured: 'ผลงานเด่น',
     overview: 'ระบบนี้ทำอะไร',
+    screens: 'ภาพหน้าจอ',
     features: 'ฟีเจอร์หลัก',
     highlights: 'จุดเด่นทางเทคนิค',
     stack: 'เครื่องมือ',

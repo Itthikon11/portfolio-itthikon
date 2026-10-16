@@ -1397,6 +1397,125 @@ textarea {
   color: var(--muted);
 }
 
+.pdetail__gallery {
+  margin-bottom: 30px;
+}
+
+.pdetail__shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pdetail__shot {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--pdetail-line, rgba(20, 24, 48, 0.1));
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+  aspect-ratio: 16 / 10;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.pdetail__shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.pdetail__shot:hover {
+  transform: translateY(-3px);
+  border-color: var(--pa);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--pb) 28%, transparent);
+}
+
+.pdetail__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 56px);
+  background: rgba(8, 9, 16, 0.86);
+  backdrop-filter: blur(6px);
+  animation: pdetail-fade 0.18s ease;
+}
+
+.pdetail__lb-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.pdetail__lb-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.pdetail__lb-close:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.pdetail__lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.pdetail__lb-nav:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.pdetail__lb-nav--prev {
+  left: 14px;
+}
+
+.pdetail__lb-nav--next {
+  right: 14px;
+}
+
+.pdetail__lb-count {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes pdetail-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 .pdetail__cols {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1510,6 +1629,10 @@ textarea {
 
   .pdetail__cols {
     grid-template-columns: 1fr;
+  }
+
+  .pdetail__shots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pdetail__stack > div {
