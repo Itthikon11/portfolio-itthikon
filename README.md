@@ -1,6 +1,6 @@
 # portfolio-itthikon
 
-Portfolio ของ Itthikon Sakumkaew — React + Vite
+Portfolio ของ Itthikon Sakunkaew — React + Vite
 
 ## เริ่มใช้งาน
 

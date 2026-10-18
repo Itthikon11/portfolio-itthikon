@@ -23,14 +23,18 @@ export const SONG = { title: 'Full-Stack', subtitle: 'Developer', tag: 'Hybrid �
 
 export const SKILLS = [
   [
-    { label: 'Frontend', items: ['React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Tailwind CSS', 'Flutter', 'Dart'] },
-    { label: 'Backend', items: ['Java', 'PHP', 'Node.js', 'Express.js'] }
+    { label: 'Frontend', items: ['HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Tailwind CSS'] },
+    { label: 'Mobile', items: ['Flutter', 'Dart'] }
   ],
   [
-    { label: 'Database', items: ['PostgreSQL', 'MySQL', 'MongoDB', 'Supabase', 'Firebase'] },
-    { label: 'Tools & Others', items: ['Docker', 'Github', 'Postman', 'Vite', 'Figma', 'Database Modeling', 'Visual Studio Code'] }
+    { label: 'Backend', items: ['Node.js', 'Express.js', 'REST API'] },
+    { label: 'Database', items: ['MySQL', 'PostgreSQL', 'Supabase (RLS, Triggers)'] },
+    { label: 'Others', items: ['GIS / Maps (Leaflet)', 'QR Code', 'OCR (Tesseract)', '3D / WebGL', 'Excel & PDF Export'] }
   ],
-  [{ label: 'Artificial Intelligence', items: ['Claude Code', 'ChatGPT', 'GitHub Copilot', 'Gemini'] }]
+  [
+    { label: 'Tools', items: ['Git', 'Github', 'Vite', 'pnpm', 'Visual Studio Code', 'Postman', 'Docker'] },
+    { label: 'Artificial Intelligence', items: ['Claude Code', 'ChatGPT', 'GitHub Copilot', 'Gemini'] }
+  ]
 ];
 
 // Projects shown in the gallery. Text fields take { en, th }; `title` may be a plain string.
@@ -318,7 +322,7 @@ export const PROJECTS = [
     href: ''
   },
   {
-    title: 'Thermo Maniq',
+    title: 'Thermo ManiQ',
     glyph: 'zap',
     accent: ['#7dd3fc', '#2563c9'],
     category: { en: 'Website + CMS', th: 'เว็บไซต์ + CMS' },
@@ -435,10 +439,10 @@ export const PROJECTS = [
     title: 'StockHub Link',
     glyph: 'box',
     accent: ['#fda4af', '#be123c'],
-    category: { en: 'Stock & sales', th: 'ระบบสต็อกและยอดขาย' },
+    category: { en: 'Stock & POS', th: 'ระบบสต็อกและ POS' },
     tagline: {
-      en: 'Offline-first PWA for small shops to run stock, sales and monthly summaries.',
-      th: 'แอป PWA สำหรับร้านค้า จัดการสต็อก ยอดขาย และสรุปรายเดือน ใช้งานออฟไลน์ได้'
+      en: 'Multi-business stock & POS platform — one system for retail, restaurants and live-selling.',
+      th: 'แพลตฟอร์มสต็อกและ POS สำหรับหลายธุรกิจ — ระบบเดียวใช้ได้ทั้งร้านค้าปลีก ร้านอาหาร และไลฟ์ขายของ'
     },
     overview: {
       en: 'Shop owners and staff sign in to manage their own shop: on-hand stock, opening sacks into smaller units, receiving and adjustments, sales by channel and a monthly summary with charts. Data stays in sync across every device and the app keeps working offline.',
@@ -446,14 +450,16 @@ export const PROJECTS = [
     },
     features: {
       en: [
-        ['Stock:', 'on-hand quantities, opening a sack into smaller units, receiving and adjustments with a movement history'],
+        ['Store types:', 'retail, restaurant QR ordering with a kitchen display, and live-selling in one platform'],
+        ['Stock:', 'on-hand quantities, bundles, low-stock alerts, opening a sack into smaller units, receiving and adjustments with a movement history'],
         ['Sales:', 'record sales by channel (TikTok / Facebook / walk-in) with full sales history'],
         ['Summary:', 'monthly sales, profit and cost with charts and a yearly table'],
         ['Products:', 'manage products, prices and units'],
         ['Multi-shop:', 'switch between shops; a system admin can see every shop (invite-only)']
       ],
       th: [
-        ['สต็อก:', 'ยอดคงเหลือ แกะกระสอบเป็นหน่วยย่อย รับเข้า/ปรับยอด พร้อมประวัติการเคลื่อนไหว'],
+        ['ประเภทร้าน:', 'ร้านค้าปลีก ร้านอาหารสั่งผ่าน QR พร้อมจอครัว และไลฟ์ขายของ ในแพลตฟอร์มเดียว'],
+        ['สต็อก:', 'ยอดคงเหลือ สินค้าแบบชุด (bundle) แจ้งเตือนสต็อกใกล้หมด แกะกระสอบเป็นหน่วยย่อย รับเข้า/ปรับยอด พร้อมประวัติการเคลื่อนไหว'],
         ['ขาย:', 'บันทึกการขายแยกตามช่องทาง (TikTok / Facebook / หน้าร้าน) และประวัติการขาย'],
         ['สรุป:', 'ยอดขาย กำไร และต้นทุนรายเดือน พร้อมกราฟและตารางสรุปรายปี'],
         ['สินค้า:', 'จัดการสินค้า ตั้งราคา และหน่วยนับ'],
@@ -465,13 +471,13 @@ export const PROJECTS = [
         ['Offline-first PWA:', 'installs to the home screen and keeps working with no connection, then syncs when back online'],
         ['Security:', 'Supabase Auth + RLS, invite-only sign-up, a PIN lock and email-OTP verification'],
         ['Per-shop isolation:', 'Row Level Security with role-based access (owner / admin / staff)'],
-        ['TypeScript:', 'the whole app is written in TypeScript on Vite']
+        ['TypeScript:', 'the whole app is written in React 19 + TypeScript on Vite, with a responsive light/dark UI']
       ],
       th: [
         ['PWA ออฟไลน์:', 'ติดตั้งลงหน้าจอได้ ใช้งานต่อได้แม้ไม่มีเน็ต แล้ว sync เมื่อกลับมาออนไลน์'],
         ['ความปลอดภัย:', 'Supabase Auth + RLS, สมัครแบบ invite-only, PIN ล็อกแอป และยืนยันอีเมลด้วย OTP'],
         ['แยกข้อมูลแต่ละร้าน:', 'ด้วย Row Level Security และสิทธิ์ตามบทบาท (owner / admin / staff)'],
-        ['TypeScript:', 'เขียนด้วย TypeScript บน Vite ทั้งโปรเจค']
+        ['TypeScript:', 'เขียนด้วย React 19 + TypeScript บน Vite ทั้งโปรเจค พร้อม UI ธีมสว่าง/มืดที่รองรับทุกขนาดจอ']
       ]
     },
     tags: ['React', 'TypeScript', 'Supabase', 'PWA'],
@@ -488,7 +494,7 @@ export const PROJECTS = [
       '/images/projects/stockhub-link/09.webp'
     ],
     stack: [
-      { label: 'Frontend', items: ['React', 'TypeScript', 'Vite', 'PWA (Service Worker)'] },
+      { label: 'Frontend', items: ['React 19', 'TypeScript', 'Vite', 'PWA (Service Worker)'] },
       { label: 'Backend', items: ['Supabase', 'PostgreSQL', 'RLS', 'Realtime'] },
       { label: 'Deploy', items: ['Vercel'] }
     ],
@@ -621,7 +627,7 @@ export const pick = (value, lang) => (value && typeof value === 'object' && !Arr
 
 export const TEXT = {
   en: {
-    name: 'ITTHIKON SAKUMKAEW',
+    name: 'ITTHIKON SAKUNKAEW',
     nav: { home: 'Home', education: 'Education', skills: 'Skills', projects: 'Projects', contact: 'Contact' },
     available: 'AVAILABLE FOR HIRE',
     viewPhoto: 'View photo',
