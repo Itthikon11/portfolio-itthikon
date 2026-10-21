@@ -660,7 +660,7 @@ export const TEXT = {
     skillsSub: 'Technologies and tools I work with',
     projectsTitle: 'Projects',
     projectsSub: 'Some of my recent work',
-    poke: ['Click me', 'baby'],
+    poke: ['Click me'],
     backToFolder: 'Close folder',
     viewProject: 'View project',
     viewDetails: 'View details',

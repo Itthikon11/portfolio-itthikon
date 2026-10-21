@@ -76,9 +76,12 @@ export default function Projects() {
             <Folder color="#DDD59B" size={3.4} onToggle={onFolderToggle} />
           </div>
           <p className="pixel poke">
-            {t.poke[0]}
-            <br />
-            {t.poke[1]}
+            {t.poke.map((line, i) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                {line}
+              </span>
+            ))}
           </p>
         </div>
       ) : (
